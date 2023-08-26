@@ -1,0 +1,4 @@
+startmain
+output "This should not be tokenized"
+endmain
+endprogram

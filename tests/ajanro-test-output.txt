@@ -1,0 +1,5 @@
+startprogram ProgramName
+	startmain
+		output 3.141
+	endmain
+endprogram

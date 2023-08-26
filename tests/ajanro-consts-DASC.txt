@@ -1,0 +1,12 @@
+startprogram DailyAvgSalesCalc
+	startmain
+		const integer DAYS_IN_A_WEEK = 7
+		floating weeklySales
+		floating dailyAvgSales
+		output "Enter weekly sales:"
+		input weeklySales
+		dailyAvgSales = weeklySales / DAYS_IN_A_WEEK
+
+		output "dailyAvgSales = " + dailyAvgSales
+	endmain
+endprogram

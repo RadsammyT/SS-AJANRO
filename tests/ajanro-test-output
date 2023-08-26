@@ -1,0 +1,5 @@
+startprogram ProgramName
+	startmain
+		output "Hello World!" // this is a test
+	endmain
+endprogram
