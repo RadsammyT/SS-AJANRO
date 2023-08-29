@@ -14,16 +14,24 @@ enum class TokenType {
 	EndProgram, // MUST be the final token
 	StartMain,
 	EndMain,
-	Output,
+	EndModule, // whoever thought it was a good idea to rename functions to """modules"""
+	Output,		// is clinically INSANE
 	Input,
 	Identifier, // Default for any tokens that aren't "reserved"
 	ConstVar,
-	TypeString,
+	FlowWhile, // Control flow statements.
+	FlowIf,
+	FlowThen,
+	FlowElse,
+	FlowDo,
+	FlowEndif,
+	FlowEndWhile,
+	TypeString, // Types that are usually in variable declarations.
 	TypeInteger,
 	TypeFloating,
 	TypeBool,
 	TypeChar,
-	StringLit,
+	StringLit, // Type literals
 	IntegerLit,
 	FloatingLit,
 	BoolLit,
@@ -33,6 +41,18 @@ enum class TokenType {
 	OperatorDivide,
 	OperatorAdd,
 	OperatorSub,
+	OperatorAnd, // Boolean Operators 
+	OperatorOr,
+	OperatorLess,
+	OperatorGreater,
+	OperatorEqual,
+	OperatorNotEqual,
+	OperatorLessEqual,
+	OperatorGreaterEqual,
+	OpenParenthesis,
+	CloseParenthesis,
+	Comma,
+	Return,
 	EOL, // serves as a semicolon (as in the end of a command)
 	_EOF,
 };
@@ -42,12 +62,15 @@ struct Token {
 	std::string val;
 };
 
-bool IsSymbol(char c) {
+bool IsSymbol(char c, std::string in, int i) {
 	if(c == '*' ||
 		c == '/' ||
 		c == '+' ||
 		c == '-' ||
 		c == '=' ||
+		c == '&' ||
+		c == '<' ||
+		c == '>' ||
 		c == '_') {
 		return true;
 	}
@@ -100,9 +123,42 @@ Token parseBuffer(std::string buf) {
 		return Token{TokenType::SetSymbol, buf};
 	}
 
+	if(buf == "true") {
+		return Token{TokenType::BoolLit, buf};
+	}
+
+	if(buf == "false") {
+		return Token{TokenType::BoolLit, buf};
+	}
+
+	if(buf == "if") {
+		return Token{TokenType::FlowIf, buf};
+	}
+
+	if(buf == "then") {
+		return Token{TokenType::FlowThen, buf};
+	}
+
+	if(buf == "endif") {
+		return Token{TokenType::FlowEndif, buf};
+	}
+
+	if(buf == "while") {
+		return Token{TokenType::FlowWhile, buf};
+	}
+
+	if(buf == "do")
+		return Token{TokenType::FlowDo, buf};
+
+	if(buf == "endwhile")
+		return Token{TokenType::FlowWhile, buf};
+
+	if(buf == "return")
+		return Token{TokenType::Return, buf};
 	//literal parsing
 	// 32.141
 	// 0.141
+	// 3141
 	std::cmatch m;
 	// i have two problems now :)
 	if(std::regex_match(buf.c_str(), m, std::regex("[0-9]*[.][0-9]*"))) {
@@ -119,18 +175,34 @@ Token parseBuffer(std::string buf) {
 		return Token {TokenType::IntegerLit, buf};
 	}
 
-	if(IsSymbol(buf[0])) {
-		switch(buf[0]) {
-			case '*':
-				return Token{TokenType::OperatorMulti, buf};
-			case '/':
-				return Token{TokenType::OperatorDivide, buf};
-			case '+':
-				return Token{TokenType::OperatorAdd, buf};
-			case '-':
-				return Token{TokenType::OperatorSub, buf};
-		}
+	if(std::regex_match(buf.c_str(), m, std::regex("[0-9]*"))) {
+		return Token {TokenType::IntegerLit, buf};
 	}
+
+	if(IsSymbol(buf[0], buf, 0)) {
+			if(buf == "*")
+				return Token{TokenType::OperatorMulti, buf};
+			if(buf == "/")
+				return Token{TokenType::OperatorDivide, buf};
+			if(buf == "+")
+				return Token{TokenType::OperatorAdd, buf};
+			if(buf == "-")
+				return Token{TokenType::OperatorSub, buf};
+			if(buf == ">")
+				return Token{TokenType::OperatorGreater, buf};
+			if(buf == "<")
+				return Token{TokenType::OperatorLess, buf};
+			if(buf == "!=")
+				return Token{TokenType::OperatorNotEqual, buf};
+			if(buf == ">=")
+				return Token{TokenType::OperatorGreaterEqual, buf};
+			if(buf == "<=")
+				return Token{TokenType::OperatorLessEqual, buf};
+			if(buf == "==")
+				return Token{TokenType::OperatorEqual, buf};
+	}		
+
+
 	return Token {TokenType::Identifier, buf};
 }
 
@@ -201,7 +273,18 @@ std::vector<Token> tokenize(std::string in) {
 			continue;
 		}
 
-		if(IsSymbol(in[i])) {
+		if(in[i] == '\'') {
+			buf.push_back(in[++i]);
+			if(in[++i] != '\'') {
+				printf("Char literal at line %d"
+						" cannot contain more than one character!\n", line);
+				exit(1);
+			}
+			ret.push_back(Token {TokenType::CharLit, buf});
+			buf.clear();
+		}
+
+		if(IsSymbol(in[i], in, i)) {
 			
 			//ajanro comments to be excluded from lexing
 			if(in[i] == '/' && in[i+1] == '/') {
@@ -213,9 +296,22 @@ std::vector<Token> tokenize(std::string in) {
 			}
 
 			buf.push_back(in[i]);
+			if(IsSymbol(in[i+1], in, i)) {
+				buf.push_back(in[i]);
+			}
 			ret.push_back(parseBuffer(buf));
 			buf.clear();
 			
+		}
+
+		if(in[i] == '(') {
+			ret.push_back(Token{TokenType::OpenParenthesis, "("});
+		}
+		if(in[i] == ')') {
+			ret.push_back(Token {TokenType::CloseParenthesis, ")"});
+		}
+		if(in[i] == ',') {
+			ret.push_back(Token {TokenType::Comma, ","});
 		}
 	}
 	ret.push_back(Token {TokenType::_EOF, "\0"});

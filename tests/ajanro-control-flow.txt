@@ -1,0 +1,9 @@
+startprogram ControlFlowTest
+	startmain
+		integer inp
+		input inp
+		if inp > 9 then
+			output "Good"
+		endif
+	endmain
+endprogram

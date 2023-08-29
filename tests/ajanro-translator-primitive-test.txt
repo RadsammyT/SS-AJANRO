@@ -1,0 +1,4 @@
+startprogram TestProgram
+	startmain
+	endmain
+endprogram

@@ -1,0 +1,9 @@
+startprogram AjanroLiterals
+	startmain
+		output 3.14159 // float literals 
+		output 69420 // integer literals
+		output "Hello world!" //string literals
+		output true // bool literals
+		output 'a' // char literals
+	endmain
+endprogram

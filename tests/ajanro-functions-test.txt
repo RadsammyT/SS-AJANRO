@@ -1,0 +1,10 @@
+startprogram ModuleTest
+	integer TestModule(integer i, string s)
+		output s 
+		output i 
+	endmodule
+
+	startmain
+		TestModule(13, "This is a test message")
+	endmain
+endprogram
