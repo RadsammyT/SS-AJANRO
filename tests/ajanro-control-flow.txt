@@ -2,7 +2,7 @@ startprogram ControlFlowTest
 	startmain
 		integer inp
 		input inp
-		if inp > 9 then
+		if inp > 9 
 			output "Good"
 		endif
 	endmain

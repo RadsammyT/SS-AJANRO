@@ -55,7 +55,9 @@ namespace translator {
 		std::map<std::string, lexer::TokenType> vars;
 		std::vector<Context> contextStack;
 		std::stringstream file;
-
+		while(tokens.front().type != LTT::StartProgram) {
+			tokens.erase(tokens.begin());
+		}
 		#define TKN tokens[i] // cursed
 		int line = 1;
 		for(int i = 0; i < tokens.size(); i++) {
@@ -71,9 +73,14 @@ namespace translator {
 							contextStack.pop_back();
 							file << "<< std::endl";
 						}
+						if(contextStack.back() ==
+								Context::Flow) {
+							file << ") {\n";
+							contextStack.pop_back();
+							continue;
+						}
 					}
-					file << ";";
-					file << "\n";
+					file << ";\n";
 					continue;
 				}
 				file << "\n";
@@ -127,11 +134,39 @@ namespace translator {
 				i++;
 				continue;
 			}
+			if(TKN.type == LTT::ConstVar) {
+				file << "const ";
+				continue;
+			}
 			if(TKN.type == LTT::Identifier) {
 				if(isType(tokens[i-1].type)) {
 					vars[TKN.val] = tokens[i-1].type;
 				}
 				file << " " << TKN.val << " ";
+				continue;
+			}
+			if(TKN.type == LTT::FlowIf) {
+				file << "if(";
+				contextStack.push_back(Context::Flow);
+				continue;
+			}
+
+			if(TKN.type == LTT::FlowElse) {
+				file << "} else {";
+				continue;
+			}
+
+			if(TKN.type == LTT::FlowEndif) {
+				file << "}";
+				continue;
+			}
+			if(TKN.type == LTT::FlowWhile) {
+				file << "while(";
+				contextStack.push_back(Context::Flow);
+				continue;
+			}
+			if(TKN.type == LTT::FlowEndWhile) {
+				file << "}";
 				continue;
 			}
 			if(TKN.type == LTT::Output) {
@@ -163,6 +198,33 @@ namespace translator {
 				}
 				continue;
 			}
+			if(TKN.type == LTT::OperatorSub) {
+				file << "-";
+				continue;
+			} 
+			if(TKN.type == LTT::OperatorMulti) {
+				file << "*";
+				continue;
+			}
+			if(TKN.type == LTT::OperatorDivide) {
+				file << "/";
+			}
+			if(TKN.type == LTT::OperatorGreater) {
+				file << " > ";
+				continue;
+			}
+			if(TKN.type == LTT::OperatorGreaterEqual) {
+				file << " >= ";
+				continue;
+			}
+			if(TKN.type == LTT::OperatorLess) {
+				file << " < ";
+				continue;
+			}
+			if(TKN.type == LTT::OperatorLessEqual) {
+				file << " <= ";
+				continue;
+			}
 			if(TKN.type == LTT::StringLit) {
 				file << "\"" << TKN.val << "\"";
 				continue;
@@ -190,6 +252,7 @@ namespace translator {
 				file << " = ";
 				continue;
 			}
+			
 			if(isType(TKN.type)) {
 				file << getTranslatedType(TKN.type);
 				continue;

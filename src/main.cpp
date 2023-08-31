@@ -37,7 +37,7 @@ int main(int argc, char** argv) {
 	std::string translation = translator::translate(tokens, flags.outFile);
 	if(flags.translate) {
 		printf("Translation:\n%s\n", translation.c_str());
-		return 1;
+		return 0;
 	}
 	std::fstream fileOut(flags.outFile, std::ios::out);
 	fileOut << translation;
