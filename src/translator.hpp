@@ -2,7 +2,9 @@
 #include <vector>
 #include <fstream>
 #include <filesystem>
+#include <map>
 #pragma once
+#define LTT lexer::TokenType // this define is not sponsored by lttstore.com
 namespace translator {
 	//this is more of a checker than something important for translation
 	//except for when concatenating strings/variables in output. do '<<' operator
@@ -11,13 +13,33 @@ namespace translator {
 		Program,
 		Function, // Be it main or a usual Function
 		Flow, // if, while, etc.
-		Output // so + gets translated to << instead of +
+		Output, // so + gets translated to << instead of +
+		Expression // used in parenthesis `()` for output
 	};
-	
-	struct Variable {
-		lexer::TokenType type;
-		std::string val;
-	};
+
+	bool isType(LTT type) {
+		return type == LTT::TypeString ||
+			type == LTT::TypeChar ||
+			type == LTT::TypeFloating ||
+			type == LTT::TypeInteger ||
+			type == LTT::TypeBool;
+	}
+	std::string getTranslatedType(LTT type) {
+		switch(type) {
+			case LTT::TypeString:
+				return "std::string";
+			case LTT::TypeChar:
+				return "char";
+			case LTT::TypeFloating:
+				return "float";
+			case LTT::TypeInteger:
+				return "int";
+			case LTT::TypeBool:
+				return "bool";
+			default:
+				return "__INVALID_TYPE__";
+		}
+	}
 
 	void illegalTokenContext(lexer::TokenType type, Context context, int line) {
 
@@ -29,24 +51,30 @@ namespace translator {
 					exit(1);
 	}
 
-	bool translate(std::vector<lexer::Token> tokens, std::string outputFile) {
+	std::string  translate(std::vector<lexer::Token> tokens, std::string outputFile) {
+		std::map<std::string, lexer::TokenType> vars;
 		std::vector<Context> contextStack;
-		std::ofstream file_out;
 		std::stringstream file;
-		file_out.open(outputFile);
-		if(!file_out.is_open()) {
-			printf("ERROR: Cannot output translation - Unable to open output file\n");
-			exit(1);
-		}
 
 		#define TKN tokens[i] // cursed
-		#define LTT lexer::TokenType // this define is not sponsored by lttstore.com
 		int line = 1;
 		for(int i = 0; i < tokens.size(); i++) {
 			if(TKN.type == LTT::EOL) {
 				line++;
 				if(tokens[i-1].type != LTT::EOL) {
+					if(tokens[i-1].type == LTT::OperatorAdd) {
+						file << "\n";
+						continue;
+					} else {
+						if(contextStack.back() ==
+								Context::Output) {
+							contextStack.pop_back();
+							file << "<< std::endl";
+						}
+					}
 					file << ";";
+					file << "\n";
+					continue;
 				}
 				file << "\n";
 				continue;
@@ -73,6 +101,7 @@ namespace translator {
 							contextStack.back(),
 							line);
 				}
+				i++;
 				continue;
 			}
 			if(TKN.type == LTT::StartMain) {
@@ -95,18 +124,82 @@ namespace translator {
 							contextStack.back(), line);
 				}
 				contextStack.pop_back();
+				i++;
 				continue;
 			}
 			if(TKN.type == LTT::Identifier) {
+				if(isType(tokens[i-1].type)) {
+					vars[TKN.val] = tokens[i-1].type;
+				}
 				file << " " << TKN.val << " ";
 				continue;
 			}
-			printf("Unimplemented translation for token type %d\n",
-					TKN.type);
+			if(TKN.type == LTT::Output) {
+				contextStack.push_back(Context::Output);
+				file << "std::cout << ";
+				continue;
+			}
+			if(TKN.type == LTT::Input) {
+				if(tokens[i+1].type == LTT::Identifier) {
+					if(vars.find(tokens[i+1].val) != vars.end()) {
+						if(vars[tokens[i+1].val] == LTT::TypeString) {
+							file << "std::getline(std::cin,"
+								<< tokens[i+1].val << ")";
+						} else {
+							file << "std::cin >> " << 
+								tokens[i+1].val;
+						}
+					}
+				}
+				i++;
+				continue;
+			}
+			if(TKN.type == LTT::OperatorAdd) {
+				if(contextStack.back() ==
+						Context::Output) {
+					file << " << ";
+				} else {
+					file << " + ";
+				}
+				continue;
+			}
+			if(TKN.type == LTT::StringLit) {
+				file << "\"" << TKN.val << "\"";
+				continue;
+			}
+			if(TKN.type == LTT::IntegerLit) {
+				file << " " << TKN.val << " ";
+				continue;
+			}
+			if(TKN.type == LTT::FloatingLit) {
+				file << " " << TKN.val << " ";
+				continue;
+			}
+			if(TKN.type == LTT::BoolLit) {
+				file << " " << TKN.val << " ";
+				continue;
+			}
+			if(TKN.type == LTT::CharLit) {
+				file << " \'" << TKN.val << "\'";
+				continue;
+			}
+			if(TKN.type == LTT::SetSymbol) {
+				if(contextStack.back() == Context::Flow) {
+					file << " == ";
+				}
+				file << " = ";
+				continue;
+			}
+			if(isType(TKN.type)) {
+				file << getTranslatedType(TKN.type);
+				continue;
+			}
+			printf("Unimplemented translation for token type %d\n"
+					"Value of token: %s\n",
+					TKN.type,
+					TKN.val.c_str());
 			exit(1);
 		}
-		file_out << file.str();
-		file_out.close();
-		return true;
+		return file.str();
 	}
 }

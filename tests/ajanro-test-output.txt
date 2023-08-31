@@ -1,5 +1,12 @@
 startprogram ProgramName
 	startmain
-		output 3.141
+		string test
+		output "Get String:"
+		input test
+		output test
+		integer testtwo
+		output "Get integer:"
+		input testtwo
+		output testtwo
 	endmain
 endprogram

@@ -51,6 +51,8 @@ enum class TokenType {
 	OperatorGreaterEqual,
 	OpenParenthesis,
 	CloseParenthesis,
+	OpenBracket,
+	CloseBracket,
 	Comma,
 	Return,
 	EOL, // serves as a semicolon (as in the end of a command)
@@ -95,6 +97,9 @@ Token parseBuffer(std::string buf) {
 		return Token {TokenType::Output, buf};
 	}
 
+	if(buf == "input") 
+		return Token{TokenType::Input, buf};
+
 	if(buf == "const") {
 		return Token {TokenType::ConstVar, buf};
 	}
@@ -137,6 +142,10 @@ Token parseBuffer(std::string buf) {
 
 	if(buf == "then") {
 		return Token{TokenType::FlowThen, buf};
+	}
+	
+	if(buf == "else") {
+		return Token{TokenType::FlowElse, buf};
 	}
 
 	if(buf == "endif") {
@@ -309,6 +318,12 @@ std::vector<Token> tokenize(std::string in) {
 		}
 		if(in[i] == ')') {
 			ret.push_back(Token {TokenType::CloseParenthesis, ")"});
+		}
+		if(in[i] == '[') {
+			ret.push_back(Token {TokenType::OpenBracket, "["});
+		}
+		if(in[i] == ']') {
+			ret.push_back(Token {TokenType::CloseBracket, "]"});
 		}
 		if(in[i] == ',') {
 			ret.push_back(Token {TokenType::Comma, ","});
