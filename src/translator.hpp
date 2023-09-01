@@ -208,6 +208,7 @@ namespace translator {
 			}
 			if(TKN.type == LTT::OperatorDivide) {
 				file << "/";
+				continue;
 			}
 			if(TKN.type == LTT::OperatorGreater) {
 				file << " > ";
