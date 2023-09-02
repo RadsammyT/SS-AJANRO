@@ -6,7 +6,7 @@ namespace CLI {
 	struct flags {
 		std::string inFile;
 		std::string outFile; // output of translated file
-		bool translate; // should the file only be tokenized to output?
+		bool translate; // should the translated code be sent to output?
 		bool compile; // should it also be compiled?
 	};
 

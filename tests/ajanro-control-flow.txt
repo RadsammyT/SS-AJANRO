@@ -5,5 +5,8 @@ startprogram ControlFlowTest
 		if inp > 9 
 			output "Good"
 		endif
+		if inp = 69
+			output "Nice"
+		endif
 	endmain
 endprogram

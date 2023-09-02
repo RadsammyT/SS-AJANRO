@@ -15,7 +15,8 @@ namespace translator {
 		FunctionDecl, // to differenciate between calling and declaring functions
 		Flow, // if, while, etc.
 		Output, // so + gets translated to << instead of +
-		Expression // used in parenthesis `()` for output
+		Expression, // used in parenthesis `()` for output
+		ArrayDecl, // to put '= {}' after array initialization
 	};
 
 	bool isType(LTT type) {
@@ -269,6 +270,7 @@ namespace translator {
 			if(TKN.type == LTT::SetSymbol) {
 				if(contextStack.back() == Context::Flow) {
 					file << " == ";
+					continue;
 				}
 				file << " = ";
 				continue;
@@ -299,6 +301,27 @@ namespace translator {
 					contextStack.pop_back();
 					continue;
 				}
+			}
+
+			if(TKN.type == LTT::OpenBracket) {
+				if(tokens[i-1].type == LTT::Identifier &&
+						isType(tokens[i-2].type)) {
+					file << "[";
+					contextStack.push_back(Context::ArrayDecl);
+					continue;
+				}
+				file << "[";
+				continue;
+			}
+
+			if(TKN.type == LTT::CloseBracket) {
+				if(contextStack.back() == Context::ArrayDecl) {
+					file << "] = {}";
+					contextStack.pop_back();
+					continue;
+				} 
+				file << "]";
+				continue;
 			}
 
 			if(TKN.type == LTT::Comma) {

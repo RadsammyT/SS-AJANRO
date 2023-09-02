@@ -45,11 +45,19 @@ int main(int argc, char** argv) {
 	}
 	if(flags.compile) {
 		std::FILE *proc = popen("g++ -std=c++20 -x c++ -", "w");
+		if(!proc) {
+			perror("Unable to open pipe.");
+		}
 		fwrite(translation.c_str(),
 				sizeof(char),
 				strlen(translation.c_str()),
 				proc);
-		pclose(proc);
+		if(ferror(proc)) {
+			perror("Unable to write to pipe.");
+		}
+		if(pclose(proc) == -1) {
+			perror("Unable to close pipe.");
+		}
 		return 0;
 	}
 	std::fstream fileOut(flags.outFile, std::ios::out);
