@@ -90,6 +90,8 @@ Token parseBuffer(std::string buf) {
 	if(buf == "startmain") {
 		return Token {TokenType::StartMain, buf};
 	}
+	if(buf == "endmodule")
+		return Token {TokenType::EndModule, buf};
 	if(buf == "endmain") {
 		return Token {TokenType::EndMain, buf};
 	}
@@ -160,7 +162,7 @@ Token parseBuffer(std::string buf) {
 		return Token{TokenType::FlowDo, buf};
 
 	if(buf == "endwhile")
-		return Token{TokenType::FlowWhile, buf};
+		return Token{TokenType::FlowEndWhile, buf};
 
 	if(buf == "return")
 		return Token{TokenType::Return, buf};

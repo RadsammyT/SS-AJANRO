@@ -1,3 +1,4 @@
+#include <cstdio>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -27,16 +28,28 @@ int main(int argc, char** argv) {
 	std::stringstream stream;
 	stream << file.rdbuf();
 	
-	printf("Tokens of file:\n");
 	std::vector<lexer::Token> tokens = lexer::tokenize(stream.str());
+#ifdef DEBUG
+	printf("Tokens of file:\n");
 	for(auto i: tokens) {
 		printf("%d: %s\n", i.type, i.val.c_str());
 	}
+#endif
 
 	file.close();
 	std::string translation = translator::translate(tokens, flags.outFile);
 	if(flags.translate) {
 		printf("Translation:\n%s\n", translation.c_str());
+		if(!flags.compile)
+			return 0;
+	}
+	if(flags.compile) {
+		std::FILE *proc = popen("g++ -std=c++20 -x c++ -", "w");
+		fwrite(translation.c_str(),
+				sizeof(char),
+				strlen(translation.c_str()),
+				proc);
+		pclose(proc);
 		return 0;
 	}
 	std::fstream fileOut(flags.outFile, std::ios::out);

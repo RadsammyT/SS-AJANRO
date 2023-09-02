@@ -12,6 +12,7 @@ namespace translator {
 	enum class Context {
 		Program,
 		Function, // Be it main or a usual Function
+		FunctionDecl, // to differenciate between calling and declaring functions
 		Flow, // if, while, etc.
 		Output, // so + gets translated to << instead of +
 		Expression // used in parenthesis `()` for output
@@ -41,13 +42,19 @@ namespace translator {
 		}
 	}
 
-	void illegalTokenContext(lexer::TokenType type, Context context, int line) {
+	void illegalTokenContext(lexer::TokenType type, std::vector<Context> c, int line) {
 
 					printf("Token %d used in incorrect"
-							" Context (%d), at line %d",
+							" Context (%d), at line %d\n",
 							type,
-							context,
+							c.back(),
 							line);
+					printf("Contents of stack:\n");
+					for(auto con: c) {
+						printf("%d ", con);
+
+					}
+					printf("\n");
 					exit(1);
 	}
 
@@ -105,7 +112,7 @@ namespace translator {
 					contextStack.pop_back();
 				else {
 					illegalTokenContext(TKN.type,
-							contextStack.back(),
+							contextStack,
 							line);
 				}
 				i++;
@@ -117,7 +124,7 @@ namespace translator {
 						Context::Program) {
 
 					illegalTokenContext(TKN.type,
-							contextStack.back(),
+							contextStack,
 							line);
 				}
 				contextStack.push_back(Context::Function);
@@ -128,10 +135,20 @@ namespace translator {
 				if(contextStack.back() !=
 						Context::Function) {
 					illegalTokenContext(TKN.type, 
-							contextStack.back(), line);
+							contextStack, line);
 				}
 				contextStack.pop_back();
 				i++;
+				continue;
+			}
+			if(TKN.type == LTT::EndModule) {
+				if(contextStack.back() !=
+						Context::Function) {
+					illegalTokenContext(TKN.type,
+							contextStack, line);
+				}
+				file << "}";
+				contextStack.pop_back();
 				continue;
 			}
 			if(TKN.type == LTT::ConstVar) {
@@ -141,6 +158,9 @@ namespace translator {
 			if(TKN.type == LTT::Identifier) {
 				if(isType(tokens[i-1].type)) {
 					vars[TKN.val] = tokens[i-1].type;
+				}
+				if(vars.find(TKN.val) == vars.end()) {
+					printf("WARNING: Unknown identifier \"%s\"\n", TKN.val.c_str());
 				}
 				file << " " << TKN.val << " ";
 				continue;
@@ -253,7 +273,44 @@ namespace translator {
 				file << " = ";
 				continue;
 			}
+
+			if(TKN.type == LTT::OpenParenthesis) {
+				if(tokens[i-1].type == LTT::Identifier && 
+						isType(tokens[i-2].type)) {
+					contextStack.push_back(Context::FunctionDecl);
+					file << "(";
+					continue;
+				} else {
+					contextStack.push_back(Context::Expression);
+					file << "(";
+					continue;
+				}
+			}
+
+			if(TKN.type == LTT::CloseParenthesis) {
+				if(contextStack.back() == Context::FunctionDecl) {
+					file << ") {";
+					contextStack.pop_back();
+					contextStack.push_back(Context::Function);
+					continue;
+				} 
+				if(contextStack.back() == Context::Expression) {
+					file << ")";
+					contextStack.pop_back();
+					continue;
+				}
+			}
+
+			if(TKN.type == LTT::Comma) {
+				file << ",";
+				continue;
+			}
 			
+			if(TKN.type == LTT::Return) {
+				file << "return ";
+				continue;
+			}
+
 			if(isType(TKN.type)) {
 				file << getTranslatedType(TKN.type);
 				continue;

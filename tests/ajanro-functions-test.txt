@@ -2,6 +2,7 @@ startprogram ModuleTest
 	integer TestModule(integer i, string s)
 		output s 
 		output i 
+		return i
 	endmodule
 
 	startmain
