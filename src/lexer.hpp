@@ -170,9 +170,21 @@ Token parseBuffer(std::string buf) {
 	// 32.141
 	// 0.141
 	// 3141
+	// -3.141
+	// -3141
 	std::cmatch m;
 	// i have two problems now :)
 	if(std::regex_match(buf.c_str(), m, std::regex("[0-9]*[.][0-9]*"))) {
+		// we must consider the possibility that the matched buffer may only contain a '.'
+		if(buf != ".") {
+			return Token { TokenType::FloatingLit, buf};
+		} else {
+			printf("ERROR: Invalid Float Literal (%s), dot only\n", buf.c_str());
+			exit(1);
+		}
+	}
+
+	if(std::regex_match(buf.c_str(), m, std::regex("[-][0-9]*[.][0-9]*"))) {
 		// we must consider the possibility that the matched buffer may only contain a '.'
 		if(buf != ".") {
 			return Token { TokenType::FloatingLit, buf};
@@ -186,7 +198,7 @@ Token parseBuffer(std::string buf) {
 		return Token {TokenType::IntegerLit, buf};
 	}
 
-	if(std::regex_match(buf.c_str(), m, std::regex("[0-9]*"))) {
+	if(std::regex_match(buf.c_str(), m, std::regex("[-][0-9]*"))) {
 		return Token {TokenType::IntegerLit, buf};
 	}
 
@@ -251,6 +263,8 @@ std::vector<Token> tokenize(std::string in) {
 		}
 
 		if(std::isdigit(in[i])) {
+			if(in[i-1] == '-')
+				buf.push_back(in[i-1]);
 			while(std::isdigit(in[i]) || in[i] == '.') {
 				buf.push_back(in[i]);
 				i++;
@@ -296,7 +310,8 @@ std::vector<Token> tokenize(std::string in) {
 		}
 
 		if(IsSymbol(in[i], in, i)) {
-			
+			if(std::isdigit(in[i+1]))
+				continue;
 			//ajanro comments to be excluded from lexing
 			if(in[i] == '/' && in[i+1] == '/') {
 				while(in[i] != '\n') {

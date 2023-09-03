@@ -4,6 +4,7 @@
 #include <filesystem>
 #include <map>
 #pragma once
+
 #define LTT lexer::TokenType // this define is not sponsored by lttstore.com
 namespace translator {
 	//this is more of a checker than something important for translation

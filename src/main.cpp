@@ -7,11 +7,6 @@
 #include "lexer.hpp"
 #include "CLI.hpp"
 int main(int argc, char** argv) {
-	if(argc == 1) {
-		printf("require a file!\n");
-		exit(1);
-	}
-	
 	CLI::flags flags = {
 		.inFile = "",
 		.outFile = "./out.cpp",
@@ -19,6 +14,24 @@ int main(int argc, char** argv) {
 		.compile = false,
 	};
 	CLI::processArguments(argc, argv, &flags);
+
+	if(flags.help || argc == 1) {
+		printf("SS-AJANRO - The AJANRO to C++ translator\n"
+				"\n"
+				"Usage: ajanro (file) [option(s)]\n"
+				"By default, this will output the translated code to ./out.cpp\n"
+				"or by what is specified in the -o flag.\n"
+				"\n"
+				"Flags:\n"
+				"-t - Output translated C++ code to console output, then exit\n"
+				"     NOTE: This will not save the C++ code to a file, however.\n"
+				"-c - Compile the translated C++ code. You can use the -o flag to\n"
+				"     determine the location of the executable.\n"
+				"-o - Declare the output of the translated C++ code. If compiling,\n"
+				"     this will instead declare the output of the executable.\n"
+				);
+		return 0;
+	}
 
 	std::fstream file(flags.inFile, std::ios::in);
 	if(!file.is_open()) {
@@ -39,12 +52,17 @@ int main(int argc, char** argv) {
 	file.close();
 	std::string translation = translator::translate(tokens, flags.outFile);
 	if(flags.translate) {
+
 		printf("Translation:\n%s\n", translation.c_str());
 		if(!flags.compile)
 			return 0;
 	}
 	if(flags.compile) {
-		std::FILE *proc = popen("g++ -std=c++20 -x c++ -", "w");
+		char buf[2048] = {};
+		if(flags.outFile != "./out.cpp")
+			sprintf(buf, "g++ -o %s -std=c++20 -x c++ -",
+					flags.outFile.c_str());
+		std::FILE *proc = popen(buf, "w");
 		if(!proc) {
 			perror("Unable to open pipe.");
 		}
