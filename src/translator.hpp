@@ -60,7 +60,8 @@ namespace translator {
 					exit(1);
 	}
 
-	std::string  translate(std::vector<lexer::Token> tokens, std::string outputFile) {
+	std::string  translate(std::vector<lexer::Token> tokens, std::string outputFile,
+			std::string& programName) {
 		std::map<std::string, lexer::TokenType> vars;
 		std::vector<Context> contextStack;
 		std::stringstream file;
@@ -103,6 +104,8 @@ namespace translator {
 					printf("StartProgram token does not have "
 							"an associating identifier!\n");
 					exit(1);
+				} else {
+					programName = tokens[i].val;
 				}
 				file << "#include <iostream>\n#include <string>\n";
 				contextStack.push_back(Context::Program);

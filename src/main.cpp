@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <string>
 
 #include "gitVersion.hpp"
 #include "translator.hpp"
@@ -51,7 +52,9 @@ int main(int argc, char** argv) {
 #endif
 
 	file.close();
-	std::string translation = translator::translate(tokens, flags.outFile);
+	std::string programName;
+	std::string translation = translator::translate(tokens, flags.outFile,
+			programName);
 	if(flags.translate) {
 
 		printf("Translation:\n%s\n", translation.c_str());
@@ -63,6 +66,17 @@ int main(int argc, char** argv) {
 		if(flags.outFile != "./out.cpp")
 			sprintf(buf, "g++ -o %s -std=c++20 -x c++ -",
 					flags.outFile.c_str());
+		else {
+#if defined(_WIN32)
+			programName += ".exe";
+			sprintf(buf, "g++ -o %s -std=c++20 -x c++ -",
+					programName.c_str());
+#else
+			sprintf(buf, "g++ -o %s -std=c++20 -x c++ -",
+					programName.c_str());
+#endif
+
+		}
 		std::FILE *proc = popen(buf, "w");
 		if(!proc) {
 			perror("Unable to open pipe.");
