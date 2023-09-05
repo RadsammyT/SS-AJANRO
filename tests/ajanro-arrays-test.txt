@@ -5,5 +5,11 @@ startprogram ArraysTest
 		test[1] = 2
 
 		output test[0] + " " + test[1]
+
+		integer multitest[100][100]
+		multitest[0][0] = 100
+		multitest[0][1] = 200
+		output multitest[0][0] + " " + multitest[0][1] +
+				"\n" + multitest[1][0] + " " + multitest[1][1]
 	endmain
 endprogram

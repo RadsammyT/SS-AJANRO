@@ -305,8 +305,11 @@ namespace translator {
 			}
 
 			if(TKN.type == LTT::OpenBracket) {
-				if(tokens[i-1].type == LTT::Identifier &&
-						isType(tokens[i-2].type)) {
+				if(((tokens[i-1].type == LTT::Identifier &&
+						isType(tokens[i-2].type))
+						|| (tokens[i-1].type == LTT::CloseBracket
+						&& contextStack.back() != Context::Output
+						&& contextStack.back() != Context::Expression))) {
 					file << "[";
 					contextStack.push_back(Context::ArrayDecl);
 					continue;
@@ -317,9 +320,15 @@ namespace translator {
 
 			if(TKN.type == LTT::CloseBracket) {
 				if(contextStack.back() == Context::ArrayDecl) {
-					file << "] = {}";
+					if(tokens[i+1].type != LTT::OpenBracket &&
+							tokens[i+1].type != LTT::SetSymbol &&
+							contextStack.back() != Context::Output)
+						file << "] = {}";
 					contextStack.pop_back();
-					continue;
+					if(tokens[i+1].type != LTT::OpenBracket &&
+							tokens[i+1].type != LTT::SetSymbol &&
+							contextStack.back() != Context::Output)
+						continue;
 				} 
 				file << "]";
 				continue;
