@@ -3,7 +3,7 @@ startprogram AjanroLiterals
 		output 3.14159 // float literals 
 		output -3.14159
 		output 69420 // integer literals
-		output -69420
+		output (0 - -69420)
 		output "Hello world!" //string literals
 		output true // bool literals
 		output 'a' // char literals

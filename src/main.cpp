@@ -3,6 +3,7 @@
 #include <fstream>
 #include <sstream>
 
+#include "gitVersion.hpp"
 #include "translator.hpp"
 #include "lexer.hpp"
 #include "CLI.hpp"
@@ -17,7 +18,7 @@ int main(int argc, char** argv) {
 
 	if(flags.help || argc == 1) {
 		printf("SS-AJANRO - The AJANRO to C++ translator\n"
-				"\n"
+				"Version: " GIT_COMMIT "\n"
 				"Usage: ajanro (file) [option(s)]\n"
 				"By default, this will output the translated code to ./out.cpp\n"
 				"or by what is specified in the -o flag.\n"

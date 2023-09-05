@@ -1,0 +1,5 @@
+startprogram UnknownIdentifier
+	startmain
+		superwhile = 0
+	endmain
+endprogram
