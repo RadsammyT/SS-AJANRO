@@ -6,6 +6,8 @@ startprogram ModuleTest
 	endmodule
 
 	startmain
-		TestModule(13, "This is a test message")
+		integer test
+		test = TestModule(13, "This is a test message")
+		output test
 	endmain
 endprogram

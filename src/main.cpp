@@ -1,4 +1,5 @@
 #include <cstdio>
+#include <cstdlib>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -29,8 +30,10 @@ int main(int argc, char** argv) {
 				"     NOTE: This will not save the C++ code to a file, however.\n"
 				"-c - Compile the translated C++ code. You can use the -o flag to\n"
 				"     determine the location of the executable.\n"
-				"-o - Declare the output of the translated C++ code. If compiling,\n"
-				"     this will instead declare the output of the executable.\n"
+				"-o - Declare the output of the translated C++ code.\n"
+				"     If compiling, this will instead declare the output \n"
+				"     of the executable.\n"
+				"     The argument after the flag will be the output file.\n"
 				);
 		return 0;
 	}
@@ -90,6 +93,15 @@ int main(int argc, char** argv) {
 		}
 		if(pclose(proc) == -1) {
 			perror("Unable to close pipe.");
+		}
+		if(flags.run) {
+			std::string cmd = "./";
+			if(flags.outFile == "./out.cpp") {
+				cmd += programName;
+			} else 
+				cmd += flags.outFile;
+			printf("Running %s...\n", cmd.c_str());
+			system(cmd.c_str());
 		}
 		return 0;
 	}

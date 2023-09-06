@@ -9,6 +9,7 @@ namespace CLI {
 		std::string outFile; // output of translated file
 		bool translate; // should the translated code be sent to output?
 		bool compile; // should it also be compiled?
+		bool run; // if compiled, run executable after?
 		bool help; // show help screen? overrides all flags- just exits when
 				   // help output is printed
 	};
@@ -29,6 +30,11 @@ namespace CLI {
 
 			if(strcmp(argv[i], "-c") == 0) {
 				flags->compile = true;
+				continue;
+			}
+
+			if(strcmp(argv[i], "-r") == 0) {
+				flags->run= true;
 				continue;
 			}
 
