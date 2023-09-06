@@ -30,6 +30,8 @@ int main(int argc, char** argv) {
 				"     NOTE: This will not save the C++ code to a file, however.\n"
 				"-c - Compile the translated C++ code. You can use the -o flag to\n"
 				"     determine the location of the executable.\n"
+				"-r - If compile flag is set, run the compiled executable\n"
+				"     after a successful compilation. \n"
 				"-o - Declare the output of the translated C++ code.\n"
 				"     If compiling, this will instead declare the output \n"
 				"     of the executable.\n"

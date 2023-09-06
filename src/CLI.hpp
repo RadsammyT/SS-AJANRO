@@ -38,6 +38,11 @@ namespace CLI {
 				continue;
 			}
 
+			if(strcmp(argv[i], "--version") == 0) {
+				flags->help = true;
+				continue;
+			}
+
 			if(strcmp(argv[i], "-h") == 0 ||
 					strcmp(argv[i], "--help") == 0) {
 				flags->help = true;
