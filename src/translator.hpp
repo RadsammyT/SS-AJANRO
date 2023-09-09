@@ -40,6 +40,8 @@ namespace translator {
 			case LTT::TypeBool:
 				return "bool";
 			default:
+				printf("UH OH: Got a 'getTranslatedType()' call with an invalid"
+						" type. Type is %d.", type);
 				return "__INVALID_TYPE__";
 		}
 	}

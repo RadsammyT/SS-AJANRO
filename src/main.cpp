@@ -4,6 +4,8 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <filesystem>
+namespace fs = std::filesystem;
 
 #include "gitVersion.hpp"
 #include "translator.hpp"
@@ -30,6 +32,9 @@ int main(int argc, char** argv) {
 				"     NOTE: This will not save the C++ code to a file, however.\n"
 				"-c - Compile the translated C++ code. You can use the -o flag to\n"
 				"     determine the location of the executable.\n"
+				"     By default the executable will be placed in the ./bin dir\n"
+				"     for organization with the executable name being the\n"
+				"     identifier declared after the \'startprogram\' token.\n"
 				"-r - If compile flag is set, run the compiled executable\n"
 				"     after a successful compilation. \n"
 				"-o - Declare the output of the translated C++ code.\n"
@@ -58,6 +63,7 @@ int main(int argc, char** argv) {
 
 	file.close();
 	std::string programName;
+	std::string out = "bin/";
 	std::string translation = translator::translate(tokens, flags.outFile,
 			programName);
 	if(flags.translate) {
@@ -72,13 +78,17 @@ int main(int argc, char** argv) {
 			sprintf(buf, "g++ -o %s -std=c++20 -x c++ -",
 					flags.outFile.c_str());
 		else {
+			if(!fs::exists("bin")) {
+				fs::create_directory("bin");
+			}
+			out += programName;
 #if defined(_WIN32)
 			programName += ".exe";
 			sprintf(buf, "g++ -o %s -std=c++20 -x c++ -",
-					programName.c_str());
+					out.c_str());
 #else
 			sprintf(buf, "g++ -o %s -std=c++20 -x c++ -",
-					programName.c_str());
+					out.c_str());
 #endif
 
 		}
@@ -93,15 +103,17 @@ int main(int argc, char** argv) {
 		if(ferror(proc)) {
 			perror("Unable to write to pipe.");
 		}
-		if(pclose(proc) == -1) {
+		int pclose_ret = pclose(proc);
+		if(pclose_ret == -1){
 			perror("Unable to close pipe.");
 		}
-		if(flags.run) {
+		if(pclose_ret != 0) {
+			perror("Pipe closed in an error!\n");
+			printf("Return code of closed pipe = %d\n", pclose_ret);
+		}
+		if(flags.run && pclose_ret == 0) {
 			std::string cmd = "./";
-			if(flags.outFile == "./out.cpp") {
-				cmd += programName;
-			} else 
-				cmd += flags.outFile;
+			cmd += out;
 			printf("Running %s...\n", cmd.c_str());
 			system(cmd.c_str());
 		}
