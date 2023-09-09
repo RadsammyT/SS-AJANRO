@@ -1,4 +1,5 @@
 _bin
 _build
+src/gitVersion.hpp
 a.out
 out.cpp

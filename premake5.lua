@@ -1,4 +1,8 @@
 workspace "ajanro"
+	prebuildcommands {
+		"pwd",
+		"bash ../UpdateGit.sh"
+	}
 	configurations {"Debug", "Release"}
 
     filter "configurations:Debug"

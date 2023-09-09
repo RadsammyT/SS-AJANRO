@@ -1,2 +1,1 @@
-#define GIT_COMMIT "76d2a8e-dirty"
-#pragma once
+#define GIT_VERSION "7f1e5e2"

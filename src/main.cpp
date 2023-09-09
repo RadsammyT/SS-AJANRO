@@ -22,7 +22,7 @@ int main(int argc, char** argv) {
 
 	if(flags.help || argc == 1) {
 		printf("SS-AJANRO - The AJANRO to C++ translator\n"
-				"Version: " GIT_COMMIT "\n"
+				"Version: " GIT_VERSION "\n"
 				"Usage: ajanro (file) [option(s)]\n"
 				"By default, this will output the translated code to ./out.cpp\n"
 				"or by what is specified in the -o flag.\n"
