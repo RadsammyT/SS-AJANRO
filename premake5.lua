@@ -1,7 +1,6 @@
 workspace "ajanro"
 	prebuildcommands {
-		"pwd",
-		"bash ../UpdateGit.sh"
+		"bash ../UpdateGit.sh",
 	}
 	configurations {"Debug", "Release"}
 

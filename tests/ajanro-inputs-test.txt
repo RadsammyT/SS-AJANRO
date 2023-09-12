@@ -1,0 +1,17 @@
+startprogram InputsTest
+	startmain
+		string testone
+		integer testtwo
+		integer testthree
+		string testfour
+
+		output "int"
+		input testtwo
+		output "int"
+		input testthree
+		output "string"
+		input testone
+		output "string"
+		input testfour
+	endmain
+endprogram

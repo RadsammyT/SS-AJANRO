@@ -323,6 +323,7 @@ std::vector<Token> tokenize(std::string in) {
 
 			buf.push_back(in[i]);
 			if(IsSymbol(in[i+1], in, i)) {
+				i++;
 				buf.push_back(in[i]);
 			}
 			ret.push_back(parseBuffer(buf));

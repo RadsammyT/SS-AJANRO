@@ -46,6 +46,32 @@ namespace translator {
 		}
 	}
 
+	std::vector<std::string> getInputtedVars(std::vector<lexer::Token> tokens) {
+		std::vector<std::string> ret;
+		for(int i = 0; i < tokens.size(); i++) {
+			if(tokens[i].type == LTT::Input && tokens[i+1].type == LTT::Identifier) {
+				ret.push_back(tokens[i+1].val);
+			}
+		}
+		return ret;
+	} 
+
+	std::map<std::string, lexer::TokenType> getAllVars(std::vector<lexer::Token> tokens) {
+		std::map<std::string, lexer::TokenType> vars;
+		for(int i = 0; i < tokens.size(); i++) {
+			if(tokens[i].type == LTT::Identifier) {
+				if(isType(tokens[i-1].type)) {
+					vars[tokens[i].val] = tokens[i-1].type;
+				}
+				if(vars.find(tokens[i].val) == vars.end()) {
+					printf("WARNING: Unknown identifier \"%s\"\n", tokens[i].val.c_str());
+				}
+				continue;
+			}
+		}
+		return vars;
+	}
+
 	void illegalTokenContext(lexer::TokenType type, std::vector<Context> c, int line) {
 
 					printf("Token %d used in incorrect"
@@ -64,7 +90,8 @@ namespace translator {
 
 	std::string  translate(std::vector<lexer::Token> tokens, std::string outputFile,
 			std::string& programName) {
-		std::map<std::string, lexer::TokenType> vars;
+		std::map<std::string, lexer::TokenType> vars = getAllVars(tokens);
+		std::vector<std::string> inputs = getInputtedVars(tokens);
 		std::vector<Context> contextStack;
 		std::stringstream file;
 		while(tokens.front().type != LTT::StartProgram) {
@@ -109,7 +136,8 @@ namespace translator {
 				} else {
 					programName = tokens[i].val;
 				}
-				file << "#include <iostream>\n#include <string>\n";
+				file << "#include <iostream>\n#include <string>\n"
+					<< "#include <limits>\n";
 				contextStack.push_back(Context::Program);
 				continue;
 			}
@@ -163,7 +191,7 @@ namespace translator {
 				continue;
 			}
 			if(TKN.type == LTT::Identifier) {
-				if(isType(tokens[i-1].type)) {
+				if(isType(tokens[i-1].type) && vars.find(TKN.val) == vars.end()) {
 					vars[TKN.val] = tokens[i-1].type;
 				}
 				if(vars.find(TKN.val) == vars.end()) {
@@ -202,8 +230,22 @@ namespace translator {
 				continue;
 			}
 			if(TKN.type == LTT::Input) {
+				bool wipeCin = false;
 				if(tokens[i+1].type == LTT::Identifier) {
+					if(inputs.front() != tokens[i+1].val) {
+						printf("ERROR: Inaccurate input vars vector at line %d.\n"
+								"Front of inputs is %s, the identifier here is %s\n",
+								line,
+								inputs.front().c_str(), tokens[i+1].val.c_str());
+					}
 					if(vars.find(tokens[i+1].val) != vars.end()) {
+						if(inputs.size() > 1) {
+							if(vars[inputs.front()] != LTT::TypeString &&
+									vars[inputs[1]] == LTT::TypeString) {
+								wipeCin = true;
+
+							}
+						}
 						if(vars[tokens[i+1].val] == LTT::TypeString) {
 							file << "std::getline(std::cin,"
 								<< tokens[i+1].val << ")";
@@ -211,8 +253,13 @@ namespace translator {
 							file << "std::cin >> " << 
 								tokens[i+1].val;
 						}
+						if(wipeCin) {
+							file << ";\n";
+							file << "std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\\n')";
+						}
 					}
 				}
+				inputs.erase(inputs.begin());
 				i++;
 				continue;
 			}
