@@ -63,7 +63,8 @@ namespace translator {
 				if(isType(tokens[i-1].type)) {
 					vars[tokens[i].val] = tokens[i-1].type;
 				}
-				if(vars.find(tokens[i].val) == vars.end()) {
+				if(vars.find(tokens[i].val) == vars.end()
+						&& tokens[i-1].type != LTT::StartProgram) {
 					printf("WARNING: Unknown identifier \"%s\"\n", tokens[i].val.c_str());
 				}
 				continue;
@@ -298,6 +299,10 @@ namespace translator {
 			}
 			if(TKN.type == LTT::OperatorLessEqual) {
 				file << " <= ";
+				continue;
+			}
+			if(TKN.type == LTT::OperatorNotEqual) {
+				file << " != ";
 				continue;
 			}
 			if(TKN.type == LTT::StringLit) {

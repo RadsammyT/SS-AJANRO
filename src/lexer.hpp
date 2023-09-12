@@ -73,7 +73,8 @@ bool IsSymbol(char c, std::string in, int i) {
 		c == '&' ||
 		c == '<' ||
 		c == '>' ||
-		c == '_') {
+		c == '_' ||
+		c == '!') {
 		return true;
 	}
 	return false;
