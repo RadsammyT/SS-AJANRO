@@ -13,7 +13,7 @@ This translator makes multiple assumptions regarding I/O, being:
 # How to Build
 
 
-Compilation requires [premake5](premake.github.io) for build files.
+Compilation requires [premake5](https://premake.github.io) for build files.
 	Check the premake5 documentation [here](https://premake.github.io/docs/using-premake)
 	to see a list of all compatable build systems.
 
