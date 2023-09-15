@@ -224,6 +224,10 @@ Token parseBuffer(std::string buf) {
 				return Token{TokenType::OperatorLessEqual, buf};
 			if(buf == "==")
 				return Token{TokenType::OperatorEqual, buf};
+			if(buf == "&&")
+				return Token{TokenType::OperatorAnd, buf};
+			if(buf == "||") 
+				return Token{TokenType::OperatorOr, buf};
 	}		
 
 
