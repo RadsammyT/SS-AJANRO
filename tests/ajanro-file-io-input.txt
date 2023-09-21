@@ -1,0 +1,11 @@
+startprogram FileIOTest
+	startmain
+		integer one
+		integer two
+		inputfile intest
+		open intest "./AjanroTestInputs.txt"
+		input one, two from intest
+		output one
+		output two
+	endmain
+endprogram

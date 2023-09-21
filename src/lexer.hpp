@@ -1,3 +1,4 @@
+#pragma once
 #include <cctype>
 #include <cwctype>
 #include <fstream>
@@ -6,7 +7,6 @@
 #include <vector>
 #include <regex>
 
-#pragma once
 namespace lexer {
 
 enum class TokenType {
@@ -31,6 +31,12 @@ enum class TokenType {
 	TypeFloating,
 	TypeBool,
 	TypeChar,
+	TypeInputFile,
+	TypeOutputFile,
+	OpenFile,
+	CloseFile,
+	FromFile,
+	ToFile,
 	StringLit, // Type literals
 	IntegerLit,
 	FloatingLit,
@@ -126,6 +132,19 @@ Token parseBuffer(std::string buf) {
 	if(buf == "boolean") {
 		return Token{TokenType::TypeBool, buf};
 	}
+
+	if(buf == "inputfile")
+		return Token{TokenType::TypeInputFile, buf};
+	if(buf == "outputfile")
+		return Token{TokenType::TypeOutputFile, buf};
+	if(buf == "open")
+		return Token{TokenType::OpenFile, buf};
+	if(buf == "close")
+		return Token{TokenType::CloseFile, buf};
+	if(buf == "to")
+		return Token{TokenType::ToFile, buf};
+	if(buf == "from")
+		return Token{TokenType::FromFile, buf};
 
 	if(buf == "=") {
 		return Token{TokenType::SetSymbol, buf};

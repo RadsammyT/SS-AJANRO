@@ -7,7 +7,7 @@ startprogram ControlFlowTest
 		else
 			output "Bad"
 		endif
-		if inp = 69
+		if inp = 69 && inp = 420
 			output "Nice"
 		endif
 	endmain

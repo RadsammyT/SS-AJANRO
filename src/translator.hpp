@@ -1,11 +1,13 @@
-#include "lexer.hpp"
+#pragma once
+#define LTT lexer::TokenType // this define is not sponsored by lttstore.com
 #include <vector>
 #include <fstream>
 #include <filesystem>
 #include <map>
-#pragma once
+#include "utils.hpp"
+#include "lexer.hpp"
+#include "translator_fileio.hpp"
 
-#define LTT lexer::TokenType // this define is not sponsored by lttstore.com
 namespace translator {
 	//this is more of a checker than something important for translation
 	//except for when concatenating strings/variables in output. do '<<' operator
@@ -20,13 +22,19 @@ namespace translator {
 		ArrayDecl, // to put '= {}' after array initialization
 	};
 
+
 	bool isType(LTT type) {
 		return type == LTT::TypeString ||
 			type == LTT::TypeChar ||
 			type == LTT::TypeFloating ||
 			type == LTT::TypeInteger ||
-			type == LTT::TypeBool;
+			type == LTT::TypeBool ||
+			type == LTT::TypeOutputFile ||
+			type == LTT::TypeInputFile;
 	}
+
+
+
 	std::string getTranslatedType(LTT type) {
 		switch(type) {
 			case LTT::TypeString:
@@ -39,6 +47,10 @@ namespace translator {
 				return "int";
 			case LTT::TypeBool:
 				return "bool";
+			case LTT::TypeInputFile:
+				return "std::string";
+			case LTT::TypeOutputFile:
+				return "std::ofstream";
 			default:
 				printf("UH OH: Got a 'getTranslatedType()' call with an invalid"
 						" type. Type is %d.", type);
@@ -46,10 +58,15 @@ namespace translator {
 		}
 	}
 
+
 	std::vector<std::string> getInputtedVars(std::vector<lexer::Token> tokens) {
 		std::vector<std::string> ret;
 		for(int i = 0; i < tokens.size(); i++) {
 			if(tokens[i].type == LTT::Input && tokens[i+1].type == LTT::Identifier) {
+				if((utils::peekAheadToEOL(tokens, i).end() - 2)->type == LTT::FromFile) {
+					i += utils::peekAheadToEOL(tokens, i).size();
+					continue;
+				}
 				ret.push_back(tokens[i+1].val);
 			}
 		}
@@ -93,6 +110,7 @@ namespace translator {
 			std::string& programName) {
 		std::map<std::string, lexer::TokenType> vars = getAllVars(tokens);
 		std::vector<std::string> inputs = getInputtedVars(tokens);
+		file::InputtedFileVars fileInputs = file::getFileInputtedVars(tokens,  vars);
 		std::vector<Context> contextStack;
 		std::stringstream file;
 		while(tokens.front().type != LTT::StartProgram) {
@@ -138,7 +156,11 @@ namespace translator {
 					programName = tokens[i].val;
 				}
 				file << "#include <iostream>\n#include <string>\n"
-					<< "#include <limits>\n";
+					<< "#include <limits>\n#include <fstream>\n"
+					<< "#include <sstream>\n";
+				if(fileInputs.integer) {
+					file << file::intFileInput << "\n";
+				}
 				contextStack.push_back(Context::Program);
 				continue;
 			}
@@ -226,6 +248,29 @@ namespace translator {
 				continue;
 			}
 			if(TKN.type == LTT::Output) {
+				auto lineTokens = utils::peekAheadToEOL(tokens, i);
+				int lineSize = lineTokens.size();
+				if(lineTokens.size() > 2) {
+					if(lineTokens[lineTokens.size()-2].type == LTT::ToFile) {
+						lineTokens.erase(lineTokens.begin());
+						std::string streamName = (lineTokens.end() - 1)->val;
+						lineTokens.erase(lineTokens.end()-1);
+						lineTokens.erase(lineTokens.end()-1);
+						file << streamName;
+						for(int j = 0; j < lineTokens.size(); j++) {
+							if(lineTokens[j].type != LTT::Comma) {
+								if(lineTokens[j].type == LTT::StringLit) {
+									file << " << \"" << lineTokens[j].val << "\"";
+								} else {
+									file << " << " << lineTokens[j].val;
+								}
+							}
+						}
+						file << "<< \"\\n\";\n";
+						i += lineSize;
+						continue;
+					}
+				}
 				contextStack.push_back(Context::Output);
 				file << "std::cout << ";
 				continue;
@@ -233,11 +278,30 @@ namespace translator {
 			if(TKN.type == LTT::Input) {
 				bool wipeCin = false;
 				if(tokens[i+1].type == LTT::Identifier) {
-					if(inputs.front() != tokens[i+1].val) {
-						printf("ERROR: Inaccurate input vars vector at line %d.\n"
-								"Front of inputs is %s, the identifier here is %s\n",
-								line,
-								inputs.front().c_str(), tokens[i+1].val.c_str());
+					if(!inputs.empty())
+						if(inputs.front() != tokens[i+1].val) {
+							printf("ERROR: Inaccurate input vars vector at line %d.\n"
+									"Front of inputs is %s, the identifier here is %s\n",
+									line,
+									inputs.front().c_str(), tokens[i+1].val.c_str());
+						}
+					if(vars[(utils::peekAheadToEOL(tokens, i).end() - 1)->val] 
+							== LTT::TypeInputFile) {
+						auto lineTokens = utils::peekAheadToEOL(tokens, i);
+						std::string stream = lineTokens[lineTokens.size()-1].val;
+						lineTokens.erase(lineTokens.begin());
+						lineTokens.erase(lineTokens.end()-2, lineTokens.end()-1);
+						for(int j = 0; j < lineTokens.size(); j++) {
+							if(lineTokens[j].type != LTT::Identifier)
+								continue;
+							if(vars[lineTokens[j].val] == LTT::TypeInteger) {
+								file << "fileInput(" << lineTokens[j].val <<
+									",\"" << lineTokens[j].val << "\","
+									<< stream << ");\n";
+							}
+						}
+						i += lineTokens.size() + 1;
+						continue;
 					}
 					if(vars.find(tokens[i+1].val) != vars.end()) {
 						if(inputs.size() > 1) {
@@ -260,8 +324,33 @@ namespace translator {
 						}
 					}
 				}
-				inputs.erase(inputs.begin());
+				if(!inputs.empty())
+					inputs.erase(inputs.begin());
 				i++;
+				continue;
+			}
+			if(TKN.type == LTT::OpenFile) {
+				if(vars[tokens[i+1].val] == LTT::TypeOutputFile) {
+					if(tokens[i+2].type == LTT::StringLit)
+						file << tokens[i+1].val
+							<< ".open(\"" << tokens[i+2].val 
+							<< "\")";
+					else
+						file << tokens[i+1].val
+							<< ".open(" << tokens[i+2].val 
+							<< ")";
+				}
+				if(vars[tokens[i+1].val] == LTT::TypeInputFile) {
+					file << tokens[i+1].val
+						<< " = \"" << tokens[i+2].val
+						<< "\"";
+				}
+				i += 2;
+				continue;
+			}
+			if(TKN.type == LTT::CloseFile) {
+				file << tokens[i+1].val << ".close()";
+				i += 1;
 				continue;
 			}
 			if(TKN.type == LTT::OperatorAdd) {
@@ -303,6 +392,14 @@ namespace translator {
 			}
 			if(TKN.type == LTT::OperatorNotEqual) {
 				file << " != ";
+				continue;
+			}
+			if(TKN.type == LTT::OperatorAnd) {
+				file << " && ";
+				continue;
+			}
+			if(TKN.type == LTT::OperatorOr) {
+				file << " || ";
 				continue;
 			}
 			if(TKN.type == LTT::StringLit) {

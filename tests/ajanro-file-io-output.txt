@@ -1,0 +1,12 @@
+startprogram FileIOOutput
+	startmain 
+		outputfile out 
+		string path = "./OutputFile.txt"
+		//open out "./OutputFile.txt"
+		open out path
+		output "Test:", path to out
+		output "Test:", path to out
+		output "Test:", path to out
+		close out
+	endmain 
+endprogram
