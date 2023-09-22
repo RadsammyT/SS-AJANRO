@@ -161,6 +161,12 @@ namespace translator {
 				if(fileInputs.integer) {
 					file << file::intFileInput << "\n";
 				}
+				if(fileInputs.floating) {
+					file << file::floatFileInput << "\n";
+				}
+				if(fileInputs.string) {
+					file << file::stringFileInput << "\n";
+				}
 				contextStack.push_back(Context::Program);
 				continue;
 			}
@@ -294,11 +300,10 @@ namespace translator {
 						for(int j = 0; j < lineTokens.size(); j++) {
 							if(lineTokens[j].type != LTT::Identifier)
 								continue;
-							if(vars[lineTokens[j].val] == LTT::TypeInteger) {
+							if(vars[lineTokens[j].val] != LTT::TypeInputFile)
 								file << "fileInput(" << lineTokens[j].val <<
 									",\"" << lineTokens[j].val << "\","
 									<< stream << ");\n";
-							}
 						}
 						i += lineTokens.size() + 1;
 						continue;
@@ -349,7 +354,10 @@ namespace translator {
 				continue;
 			}
 			if(TKN.type == LTT::CloseFile) {
-				file << tokens[i+1].val << ".close()";
+				if(vars[tokens[i+1].val] == LTT::TypeOutputFile)
+					file << tokens[i+1].val << ".close()";
+				else 
+					file << tokens[i+1].val << " = \"\"";
 				i += 1;
 				continue;
 			}

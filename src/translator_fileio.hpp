@@ -86,7 +86,7 @@ namespace translator { namespace file {
 
 	const std::string floatFileInput =
 		"void fileInput(float& var, std::string varName, std::string a) {"
-		"	std:ifstream stream(a);"
+		"	std::ifstream stream(a);"
 		"	std::string in;"
 		"	while(std::getline(stream, in)) {"
 		"	if(in == varName) {"
@@ -95,7 +95,7 @@ namespace translator { namespace file {
 		"			return;"
 		"		}"
 		"	}"
-		"printf(\"FILEIO ERROR: '%s' not found\", varName.c_str());"
+		"printf(\"FILEIO ERROR: '%s' not found\\n\", varName.c_str());"
 		"}";	
 	const std::string intFileInput =
 		"void fileInput(int& var, std::string varName, std::string a) {"
@@ -108,7 +108,7 @@ namespace translator { namespace file {
 			"		return;"
 			"	}"
 			"}"
-			"printf(\"FILEIO ERROR: '%s' not found\", varName.c_str());"
+			"printf(\"FILEIO ERROR: '%s' not found\\n\", varName.c_str());"
 		"}";	
 	const std::string stringFileInput =
 		"void fileInput(std::string& var, std::string varName, std::string a) {"
@@ -121,7 +121,7 @@ namespace translator { namespace file {
 			"		return;"
 			"	}"
 			"}"
-			"printf(\"FILEIO ERROR: '%s' not found\", varName.c_str());"
+			"printf(\"FILEIO ERROR: '%s' not found\\n\", varName.c_str());"
 		"}";	
 
 	struct InputtedFileVars {

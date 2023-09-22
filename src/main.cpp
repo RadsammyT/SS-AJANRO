@@ -54,11 +54,6 @@ int main(int argc, char** argv) {
 	}
 	std::stringstream stream;
 	stream << file.rdbuf();
-	std::string test;
-	if(std::getline(stream, test)){
-		printf("Yes!!!!\n");
-		printf("%s\n", test.c_str());
-	}
 	
 	std::vector<lexer::Token> tokens = lexer::tokenize(stream.str());
 #ifdef DEBUG

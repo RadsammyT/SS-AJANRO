@@ -2,10 +2,13 @@ startprogram FileIOTest
 	startmain
 		integer one
 		integer two
+		floating three
 		inputfile intest
 		open intest "./AjanroTestInputs.txt"
-		input one, two from intest
+		input one, two, three from intest
+		close intest
 		output one
 		output two
+		output three
 	endmain
 endprogram
