@@ -1,5 +1,3 @@
-
-#pragma once
 #include <cctype>
 #include <cwctype>
 #include <fstream>
