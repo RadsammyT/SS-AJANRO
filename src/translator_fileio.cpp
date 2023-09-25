@@ -1,5 +1,3 @@
-#pragma once
-
 #include <iostream>
 #include <fstream>
 #include <ostream>
@@ -166,6 +164,47 @@ namespace translator { namespace file {
 	};
 	
 	InputtedFileVars getFileInputtedVars(std::vector<lexer::Token> tokens,
-			std::map<std::string, translator::var> vars);
+			std::map<std::string, translator::var> vars) {
+		InputtedFileVars ret = {};
+		for(int i = 0; i < tokens.size(); i++) {
+			if(tokens[i].type == LTT::Input) {
+				auto lineTokens = utils::peekAheadToEOL(tokens, i);
+			if(lineTokens[lineTokens.size() - 2].type == LTT::FromFile) {
+				if(lineTokens[0].type != LTT::Input) {
+					printf("uh oh! in getFileInputtedVars:\n"
+							"first index of peeked ahead is not input\n"
+							"vector goes like this:\n");
+					for(int j = 0; j < lineTokens.size(); j++) {
+						printf("%d ", lineTokens[j].type);
+					}
+					exit(1);
+				}
+				lineTokens.erase(lineTokens.end() - 2, lineTokens.end() - 1);
+				lineTokens.erase(lineTokens.begin());
+				for(int j = 0; j < lineTokens.size(); j++) {
+					if(vars.find(lineTokens[j].val) != vars.end()) {
+						if(vars[lineTokens[j].val].type == LTT::TypeString) {
+							ret.string = true;
+						}
+						if(vars[lineTokens[j].val].type == LTT::TypeFloating) {
+							ret.floating = true;
+						}
+						if(vars[lineTokens[j].val].type == LTT::TypeInteger) {
+							ret.integer = true;
+						}
+						if(vars[lineTokens[j].val].type == LTT::TypeChar) {
+							ret.character = true;
+						}
+						if(vars[lineTokens[j].val].type == LTT::TypeBool) {
+							ret.boolean = true;
+						}
+					}
+				}
+				// var1, var2
+			}
+		}
+		}
+		return ret;
+	}
 }
 }
