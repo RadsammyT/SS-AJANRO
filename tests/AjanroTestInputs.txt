@@ -1,6 +1,10 @@
-one
-1234
-two
-1234
-three
+charIn
+abc
+boolIn
+true
+floatIn
 3.14159
+intIn
+123456
+stringIn
+this is a test message

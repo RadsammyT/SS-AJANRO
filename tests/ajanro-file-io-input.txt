@@ -1,14 +1,20 @@
 startprogram FileIOTest
 	startmain
-		integer one
-		integer two
-		floating three
+		char charIn
+		boolean boolIn
+		floating floatIn 
+		integer intIn
+		string stringIn
+
 		inputfile intest
 		open intest "./AjanroTestInputs.txt"
-		input one, two, three from intest
+		input charIn, boolIn, floatIn, intIn, stringIn from intest
 		close intest
-		output one
-		output two
-		output three
+
+		output charIn
+		output boolIn
+		output floatIn
+		output intIn
+		output stringIn
 	endmain
 endprogram

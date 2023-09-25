@@ -78,13 +78,22 @@ namespace translator {
 								&& tokens[i+3].type == LTT::CloseBracket) {
 							i += 3;
 							vars[tokens[original].val].arrayDimension += 1;
+							if(tokens[i].type != LTT::Identifier) {
+								continue;
+							}
 						} else {
+#if defined(DEBUG)
+							printf("var: %s\n"
+									"dimension: %d\n", tokens[original].val.c_str(),
+									vars[tokens[original].val].arrayDimension);
+#endif
 							break;
 						}
 					}
 				}
 				if(vars.find(tokens[i].val) == vars.end()
-						&& tokens[i-1].type != LTT::StartProgram) {
+						&& tokens[i-1].type != LTT::StartProgram
+						&& tokens[i].type == LTT::Identifier) {
 					printf("WARNING: Unknown identifier \"%s\"\n", tokens[i].val.c_str());
 				}
 				continue;
