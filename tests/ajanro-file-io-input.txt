@@ -5,10 +5,13 @@ startprogram FileIOTest
 		floating floatIn 
 		integer intIn
 		string stringIn
+		
+		integer arr[10]
 
 		inputfile intest
 		open intest "./AjanroTestInputs.txt"
 		input charIn, boolIn, floatIn, intIn, stringIn from intest
+		input arr[0] from intest
 		close intest
 
 		output charIn
@@ -16,5 +19,8 @@ startprogram FileIOTest
 		output floatIn
 		output intIn
 		output stringIn
+		output arr[0]
+
+
 	endmain
 endprogram

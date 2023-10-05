@@ -76,6 +76,8 @@ namespace translator {
 					while(true) {
 						if(tokens[i+1].type == LTT::OpenBracket
 								&& tokens[i+3].type == LTT::CloseBracket) {
+							int len = std::stoi(tokens[i+2].val);
+							vars[tokens[original].val].arraySizes.push_back(len);
 							i += 3;
 							vars[tokens[original].val].arrayDimension += 1;
 							if(tokens[i].type != LTT::Identifier) {
@@ -86,6 +88,11 @@ namespace translator {
 							printf("var: %s\n"
 									"dimension: %d\n", tokens[original].val.c_str(),
 									vars[tokens[original].val].arrayDimension);
+							printf("sizes: ");
+							for(int i: vars[tokens[original].val].arraySizes) {
+								printf("%d ", i);
+							}
+							printf("\n");
 #endif
 							break;
 						}
@@ -322,10 +329,20 @@ namespace translator {
 						for(int j = 0; j < lineTokens.size(); j++) {
 							if(lineTokens[j].type != LTT::Identifier)
 								continue;
-							if(vars[lineTokens[j].val].type != LTT::TypeInputFile)
-								file << "fileInput(" << lineTokens[j].val <<
-									",\"" << lineTokens[j].val << "\","
-									<< stream << ");\n";
+							if(vars[lineTokens[j].val].type != LTT::TypeInputFile) {
+								if(vars[lineTokens[j].val].arrayDimension < 1)
+									file << "fileInput(" << lineTokens[j].val <<
+										",\"" << lineTokens[j].val << "\","
+										<< stream << ");\n";
+								else {
+									file << "fileInput(";
+									file << lineTokens[j].val;
+									utils::applyBracketsToDimensionalVar(lineTokens, j, file);
+									file << ",\""<<lineTokens[j].val;
+									utils::applyBracketsToDimensionalVar(lineTokens, j, file);
+									file << "\"," << stream << ");\n";
+								}
+							}
 						}
 						i += lineTokens.size() + 1;
 						continue;

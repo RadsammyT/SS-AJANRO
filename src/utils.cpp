@@ -11,4 +11,16 @@ namespace utils {
 		}
 		return ret;
 	}
+	void applyBracketsToDimensionalVar(std::vector<lexer::Token> lineTokens, int i,
+			std::stringstream& file) {
+		while(true) {
+			if(lineTokens[i+1].type == LTT::OpenBracket
+					&& lineTokens[i+3].type == LTT::CloseBracket) {
+				file << "["<< lineTokens[i+2].val <<"]";
+				i += 3;
+			} else {
+				break;
+			}
+		}
+	}
 }

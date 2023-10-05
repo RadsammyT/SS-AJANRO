@@ -25,6 +25,7 @@ namespace translator {
 	struct var {
 		LTT type;
 		int arrayDimension; // 0 if no array
+		std::vector<int> arraySizes;
 	};
 
 	bool isType(LTT type);
@@ -32,6 +33,7 @@ namespace translator {
 	std::vector<std::string> getInputtedVars(std::vector<lexer::Token> tokens);
 	std::map<std::string, var> getAllVars(std::vector<lexer::Token> tokens);
 	void illegalTokenContext(lexer::TokenType type, std::vector<Context> c, int line);
+
 	std::string  translate(std::vector<lexer::Token> tokens, std::string outputFile,
 			std::string& programName);
 }

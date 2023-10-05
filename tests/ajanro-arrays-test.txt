@@ -1,9 +1,11 @@
 startprogram ArraysTest
 	startmain
 		integer test[100]
-		test[0] = 1
-		test[1] = 2
+		output "input two integers:"
+		input test[0]
+		input test[1]
 
+		
 		output test[0] + " " + test[1]
 		integer multitesttwo[100][100][100]
 		multitesttwo[0][0][0] = 69

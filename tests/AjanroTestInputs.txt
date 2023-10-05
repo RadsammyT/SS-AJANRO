@@ -8,3 +8,5 @@ intIn
 123456
 stringIn
 this is a test message
+arr[0]
+69

@@ -50,7 +50,7 @@ int main(int argc, char** argv) {
 	std::fstream file(flags.inFile, std::ios::in);
 	if(!file.is_open()) {
 		printf("Unable to open file.\n");
-		exit(1);
+		return 1;
 	}
 	std::stringstream stream;
 	stream << file.rdbuf();
