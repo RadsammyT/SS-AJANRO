@@ -77,7 +77,7 @@ int main(int argc, char** argv) {
 	if(flags.compile) {
 		char buf[2048] = {};
 		if(flags.outFile != "./out.cpp")
-			sprintf(buf, "g++ -o %s -std=c++20 -x c++ -",
+			sprintf(buf, "c++ -o %s -std=c++20 -x c++ -",
 					flags.outFile.c_str());
 		else {
 			if(!fs::exists("bin")) {
