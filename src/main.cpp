@@ -61,6 +61,7 @@ int main(int argc, char** argv) {
 	for(auto i: tokens) {
 		printf("%d: %s\n", i.type, i.val.c_str());
 	}
+	printf("----------\n");
 #endif
 
 	file.close();

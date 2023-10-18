@@ -5,6 +5,13 @@ startprogram ModuleTest
 		return i
 	endmodule
 
+	integer TestNewline(integer i,
+						string s) 
+		output s 
+		output i 
+		return i
+	endmodule
+
 	startmain
 		integer test
 		test = TestModule(13, "This is a test message")

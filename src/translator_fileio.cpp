@@ -6,6 +6,7 @@
 #include <vector>
 #include "lexer.hpp"
 #include "translator.hpp"
+#include "translator_fileio.hpp"
 #define LTT lexer::TokenType
 /*
  *	AJANRO input file:
@@ -80,14 +81,6 @@ void cppFileIO() {
 }
 */
 namespace translator { namespace file {
-	struct InputtedFileVars {
-		bool string;
-		bool character;
-		bool floating;
-		bool integer;
-		bool boolean;
-	};
-	
 	InputtedFileVars getFileInputtedVars(std::vector<lexer::Token> tokens,
 			std::map<std::string, translator::var> vars) {
 		InputtedFileVars ret = {};
@@ -100,7 +93,8 @@ namespace translator { namespace file {
 							"first index of peeked ahead is not input\n"
 							"vector goes like this:\n");
 					for(int j = 0; j < lineTokens.size(); j++) {
-						printf("%d ", lineTokens[j].type);
+						printf("(%d | %s)\n", lineTokens[j].type,
+								lineTokens[j].val.c_str());
 					}
 					exit(1);
 				}

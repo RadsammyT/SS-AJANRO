@@ -1,8 +1,10 @@
 startprogram AjanroIterationTest
 	startmain
 		integer iterator = 0
+		integer array[10] = {123,765,234,765,234,123,65,23,54,12}
 		while iterator < 10
 			output iterator
+			output array[iterator]
 			iterator = iterator + 1
 		endwhile
 	endmain

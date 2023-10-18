@@ -6,68 +6,9 @@
 #include <vector>
 #include <regex>
 
+#include "lexer.hpp"
+
 namespace lexer {
-
-enum class TokenType {
-	StartProgram = 0, // MUST be the starting token
-	EndProgram, // MUST be the final token
-	StartMain,
-	EndMain,
-	EndModule, // whoever thought it was a good idea to rename functions to """modules"""
-	Output,		// is clinically INSANE
-	Input,
-	Identifier, // Default for any tokens that aren't "reserved"
-	ConstVar,
-	FlowWhile, // Control flow statements.
-	FlowIf,
-	FlowThen,
-	FlowElse,
-	FlowDo,
-	FlowEndif,
-	FlowEndWhile,
-	TypeString, // Types that are usually in variable declarations.
-	TypeInteger,
-	TypeFloating,
-	TypeBool,
-	TypeChar,
-	TypeInputFile,
-	TypeOutputFile,
-	OpenFile,
-	CloseFile,
-	FromFile,
-	ToFile,
-	StringLit, // Type literals
-	IntegerLit,
-	FloatingLit,
-	BoolLit,
-	CharLit,
-	SetSymbol, // =
-	OperatorMulti,
-	OperatorDivide,
-	OperatorAdd,
-	OperatorSub,
-	OperatorAnd, // Boolean Operators 
-	OperatorOr,
-	OperatorLess,
-	OperatorGreater,
-	OperatorEqual,
-	OperatorNotEqual,
-	OperatorLessEqual,
-	OperatorGreaterEqual,
-	OpenParenthesis,
-	CloseParenthesis,
-	OpenBracket,
-	CloseBracket,
-	Comma,
-	Return,
-	EOL, // serves as a semicolon (as in the end of a command)
-	_EOF,
-};
-
-struct Token {
-	TokenType type;
-	std::string val;
-};
 
 bool IsSymbol(char c, std::string in, int i) {
 	if(c == '*' ||
@@ -368,6 +309,13 @@ std::vector<Token> tokenize(std::string in) {
 		}
 		if(in[i] == ',') {
 			ret.push_back(Token {TokenType::Comma, ","});
+		}
+
+		if(in[i] == '{') {
+			ret.push_back({TokenType::OpenBrace, "{"});
+		}
+		if(in[i] == '}') {
+			ret.push_back({TokenType::CloseBrace, "}"});
 		}
 	}
 	ret.push_back(Token {TokenType::_EOF, "\0"});

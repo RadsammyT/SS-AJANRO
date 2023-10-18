@@ -59,6 +59,8 @@ enum class TokenType {
 	CloseParenthesis,
 	OpenBracket,
 	CloseBracket,
+	OpenBrace,
+	CloseBrace,
 	Comma,
 	Return,
 	EOL, // serves as a semicolon (as in the end of a command)

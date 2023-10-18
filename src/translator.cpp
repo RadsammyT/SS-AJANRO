@@ -7,6 +7,7 @@
 #include "utils.hpp"
 #include "lexer.hpp"
 #include "translator_fileio.hpp"
+#include "translator.hpp"
 
 namespace translator {
 	//this is more of a checker than something important for translation
@@ -154,6 +155,10 @@ namespace translator {
 								Context::Flow) {
 							file << ") {\n";
 							contextStack.pop_back();
+							continue;
+						}
+						if(contextStack.back() == 
+								Context::FunctionDecl) {
 							continue;
 						}
 					}
@@ -322,6 +327,7 @@ namespace translator {
 						}
 					if(vars[(utils::peekAheadToEOL(tokens, i).end() - 1)->val].type 
 							== LTT::TypeInputFile) {
+						// fileIO input
 						auto lineTokens = utils::peekAheadToEOL(tokens, i);
 						std::string stream = lineTokens[lineTokens.size()-1].val;
 						lineTokens.erase(lineTokens.begin());
@@ -347,6 +353,7 @@ namespace translator {
 						i += lineTokens.size() + 1;
 						continue;
 					}
+					// console input
 					if(vars.find(tokens[i+1].val) != vars.end()) {
 						if(inputs.size() > 1) {
 							if(vars[inputs.front()].type != LTT::TypeString &&
@@ -532,6 +539,15 @@ namespace translator {
 						continue;
 				} 
 				file << "]";
+				continue;
+			}
+
+			if(TKN.type == LTT::OpenBrace) {
+				file << "{";
+				continue;
+			}
+			if(TKN.type == LTT::CloseBrace) {
+				file << "}";
 				continue;
 			}
 
