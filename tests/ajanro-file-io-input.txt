@@ -12,6 +12,7 @@ startprogram FileIOTest
 		open intest "./AjanroTestInputs.txt"
 		input charIn, boolIn, floatIn, intIn, stringIn from intest
 		input arr[0] from intest
+		input arr from intest
 		close intest
 
 		output charIn
@@ -20,6 +21,12 @@ startprogram FileIOTest
 		output intIn
 		output stringIn
 		output arr[0]
+
+		integer iter = 0 
+		while iter < 10 
+			output arr[iter]
+			iter = iter + 1
+		endwhile
 
 
 	endmain

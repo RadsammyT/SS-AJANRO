@@ -7,9 +7,10 @@
 #include <filesystem>
 
 #include "gitVersion.hpp"
-#include "translator.hpp"
 #include "lexer.hpp"
 #include "CLI.hpp"
+#include "utils.hpp"
+#include "translator.hpp"
 
 namespace fs = std::filesystem;
 

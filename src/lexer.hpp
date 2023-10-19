@@ -33,7 +33,7 @@ enum class TokenType {
 	TypeChar,
 	TypeInputFile,
 	TypeOutputFile,
-	OpenFile,
+	OpenFile, // FileIO keywords
 	CloseFile,
 	FromFile,
 	ToFile,
@@ -73,10 +73,7 @@ struct Token {
 };
 
 bool IsSymbol(char c, std::string in, int i);
-
 Token parseBuffer(std::string buf);
-
-
 std::vector<Token> tokenize(std::string in);
 
 }

@@ -1,6 +1,6 @@
 #pragma once
 #include "lexer.hpp"
-#include "translator.hpp"
+#include "utils.hpp"
 #define LTT lexer::TokenType
 
 namespace translator { namespace file {

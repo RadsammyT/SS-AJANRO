@@ -4,8 +4,6 @@
 #include <fstream>
 #include <filesystem>
 #include <map>
-
-#include "utils.hpp"
 #include "lexer.hpp"
 
 namespace translator {
@@ -33,7 +31,6 @@ namespace translator {
 	std::vector<std::string> getInputtedVars(std::vector<lexer::Token> tokens);
 	std::map<std::string, var> getAllVars(std::vector<lexer::Token> tokens);
 	void illegalTokenContext(lexer::TokenType type, std::vector<Context> c, int line);
-
 	std::string  translate(std::vector<lexer::Token> tokens, std::string outputFile,
 			std::string& programName);
 }

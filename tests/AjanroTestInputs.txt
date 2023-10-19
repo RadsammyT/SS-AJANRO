@@ -10,3 +10,21 @@ stringIn
 this is a test message
 arr[0]
 69
+arr[1]
+123
+arr[2]
+234
+arr[3]
+345
+arr[4]
+456
+arr[5]
+567
+arr[6]
+678
+arr[7]
+789
+arr[8]
+890
+arr[9]
+900

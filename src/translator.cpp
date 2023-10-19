@@ -326,12 +326,14 @@ namespace translator {
 									inputs.front().c_str(), tokens[i+1].val.c_str());
 						}
 					if(vars[(utils::peekAheadToEOL(tokens, i).end() - 1)->val].type 
+							// aka the last token of current line
 							== LTT::TypeInputFile) {
 						// fileIO input
 						auto lineTokens = utils::peekAheadToEOL(tokens, i);
 						std::string stream = lineTokens[lineTokens.size()-1].val;
 						lineTokens.erase(lineTokens.begin());
 						lineTokens.erase(lineTokens.end()-2, lineTokens.end()-1);
+						// erase input token, "from" token, and fileHandle identifier
 						for(int j = 0; j < lineTokens.size(); j++) {
 							if(lineTokens[j].type != LTT::Identifier)
 								continue;
@@ -341,12 +343,23 @@ namespace translator {
 										",\"" << lineTokens[j].val << "\","
 										<< stream << ");\n";
 								else {
-									file << "fileInput(";
-									file << lineTokens[j].val;
-									utils::applyBracketsToDimensionalVar(lineTokens, j, file);
-									file << ",\""<<lineTokens[j].val;
-									utils::applyBracketsToDimensionalVar(lineTokens, j, file);
-									file << "\"," << stream << ");\n";
+									// TODO: do this if all brackets cover
+									// the amount of dimensions allocated to array
+									if(utils::fullDimensionCoverage(
+												lineTokens, j, vars)) {
+										file << "fileInput(";
+										file << lineTokens[j].val;
+										utils::applyBracketsToDimensionalVar(lineTokens, j, file);
+										file << ",\""<<lineTokens[j].val;
+										utils::applyBracketsToDimensionalVar(lineTokens, j, file);
+										file << "\"," << stream << ");\n";
+									} else {
+										utils::recurseFileInputs(lineTokens,
+												j,
+												file, 
+												stream,
+												vars);
+									}
 								}
 							}
 						}
