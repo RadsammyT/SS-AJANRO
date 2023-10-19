@@ -73,6 +73,10 @@ Token parseBuffer(std::string buf) {
 		return Token{TokenType::TypeBool, buf};
 	}
 
+	if(buf == "void") {
+		return Token{TokenType::TypeVoid, buf};
+	}
+
 	if(buf == "inputfile")
 		return Token{TokenType::TypeInputFile, buf};
 	if(buf == "outputfile")
@@ -197,13 +201,15 @@ Token parseBuffer(std::string buf) {
 std::vector<Token> tokenize(std::string in) {
 	std::vector<Token> ret;
 	std::string buf;
+#if !defined (_WIN32)
 	while(true) { // cuz \n\r is used for windows text
-		if(in.find("\r") != std::string::npos) {
-			in.replace(in.find("\r"), sizeof("\r"), "");
+		if(in.find("\n\r") != std::string::npos) {
+			in.replace(in.find("\n\r"), sizeof("\n\r"), "\n");
 		} else {
 			break;
 		}
 	}
+#endif
 	if(in.find("startprogram") == std::string::npos) {
 		printf("ERROR: startprogram not found!\n");
 		exit(1);

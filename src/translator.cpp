@@ -20,6 +20,7 @@ namespace translator {
 			type == LTT::TypeFloating ||
 			type == LTT::TypeInteger ||
 			type == LTT::TypeBool ||
+			type == LTT::TypeVoid ||
 			type == LTT::TypeOutputFile ||
 			type == LTT::TypeInputFile;
 	}
@@ -42,9 +43,11 @@ namespace translator {
 				return "std::string";
 			case LTT::TypeOutputFile:
 				return "std::ofstream";
+			case LTT::TypeVoid:
+				return "void";
 			default:
 				printf("UH OH: Got a 'getTranslatedType()' call with an invalid"
-						" type. Type is %d.", type);
+						" type. Type is %d.\n", type);
 				return "__INVALID_TYPE__";
 		}
 	}

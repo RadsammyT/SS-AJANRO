@@ -31,6 +31,7 @@ enum class TokenType {
 	TypeFloating,
 	TypeBool,
 	TypeChar,
+	TypeVoid, // to be used for functions/""""modules"""" only
 	TypeInputFile,
 	TypeOutputFile,
 	OpenFile, // FileIO keywords
