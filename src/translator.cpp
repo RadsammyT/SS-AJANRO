@@ -15,7 +15,8 @@ namespace translator {
 	//instead of '+' operator
 
 	bool isType(LTT type) {
-		return type == LTT::TypeString ||
+		return 
+			type == LTT::TypeString ||
 			type == LTT::TypeChar ||
 			type == LTT::TypeFloating ||
 			type == LTT::TypeInteger ||
@@ -25,7 +26,14 @@ namespace translator {
 			type == LTT::TypeInputFile;
 	}
 
-
+	bool isLiteral(LTT type) {
+		return 
+			type == LTT::IntegerLit ||
+			type == LTT::FloatingLit ||
+			type == LTT::StringLit || 
+			type == LTT::BoolLit ||
+			type == LTT::CharLit;
+	}
 
 	std::string getTranslatedType(LTT type) {
 		switch(type) {
@@ -69,18 +77,65 @@ namespace translator {
 
 	std::map<std::string, var> getAllVars(std::vector<lexer::Token> tokens) {
 		std::map<std::string, var> vars;
+		int line = 1;
+		bool unknownIdentifiersFound = false;
 		for(int i = 0; i < tokens.size(); i++) {
+			if(tokens[i].type == LTT::EOL) {
+				line++;
+			}
 			if(tokens[i].type == LTT::Identifier) {
 				if(isType(tokens[i-1].type)) {
-					vars[tokens[i].val] = var {
+					var temp = var {
 						.type = tokens[i-1].type,
-						.arrayDimension = 0
+						.arrayDimension = 0,
+						.isConst = false,
+						.val = ""
 					};
+					if(tokens[i-2].type == LTT::ConstVar) {
+						temp.isConst = true;
+						// if i+2 is a literal?
+						if(isLiteral(tokens[i+2].type))
+							temp.val = tokens[i+2].val;
+						else {} // prolly do nothing
+								// because it was likely an array 
+								// brace initalizer
+
+					}
+					
+					vars[tokens[i].val] = temp;
 					int original = i;
 					while(true) {
 						if(tokens[i+1].type == LTT::OpenBracket
 								&& tokens[i+3].type == LTT::CloseBracket) {
-							int len = std::stoi(tokens[i+2].val);
+							int len;
+							if(tokens[i+2].type == LTT::IntegerLit)
+								len = std::stoi(tokens[i+2].val);
+							else if(tokens[i+2].type == LTT::Identifier) {
+								var ident = vars[tokens[i+2].val];
+								if(ident.isConst && ident.type == LTT::TypeInteger) {
+									len = std::stoi(ident.val);
+								} else {
+									printf(
+										"getAllVars ERROR: invalid const for array size!"
+										"\noffending const: %s\n"
+										"used in identifier: %s\n"
+										"you might have used a const that is not an integer\n"
+										"or it is an integer but not a const\n",
+										tokens[i+2].val.c_str(),
+										tokens[original].val.c_str()
+									);
+									exit(1);
+								}
+							} else {
+								printf(
+									"getAllVars ERROR: invalid type for array size!\n"
+									"offending type|value: %d|%s\n"
+									"used in identifier: %s\n"
+									"you might have used a literal thats not an integer\n",
+									tokens[i+2].type, tokens[i+2].val.c_str(),
+									tokens[original].val.c_str()
+								);
+							}
 							vars[tokens[original].val].arraySizes.push_back(len);
 							i += 3;
 							vars[tokens[original].val].arrayDimension += 1;
@@ -90,8 +145,12 @@ namespace translator {
 						} else {
 #if defined(DEBUG)
 							printf("var: %s\n"
-									"dimension: %d\n", tokens[original].val.c_str(),
-									vars[tokens[original].val].arrayDimension);
+									"dimension: %d\n"
+									"isConst: %d\n"
+									"constVal: %s\n", tokens[original].val.c_str(),
+									vars[tokens[original].val].arrayDimension,
+									vars[tokens[original].val].isConst,
+									vars[tokens[original].val].val.c_str());
 							printf("sizes: ");
 							for(int i: vars[tokens[original].val].arraySizes) {
 								printf("%d ", i);
@@ -105,10 +164,18 @@ namespace translator {
 				if(vars.find(tokens[i].val) == vars.end()
 						&& tokens[i-1].type != LTT::StartProgram
 						&& tokens[i].type == LTT::Identifier) {
-					printf("WARNING: Unknown identifier \"%s\"\n", tokens[i].val.c_str());
+					printf(
+						"WARNING: Unknown identifier \"%s\" at L%d\n",
+						tokens[i].val.c_str(),
+						line
+					);
+					unknownIdentifiersFound = true;
 				}
 				continue;
 			}
+		}
+		if(unknownIdentifiersFound) {
+			printf("NOTE: line numbers start at the 'startprogram' token\n");
 		}
 		return vars;
 	}
@@ -255,13 +322,22 @@ namespace translator {
 			}
 			if(TKN.type == LTT::Identifier) {
 				if(isType(tokens[i-1].type) && vars.find(TKN.val) == vars.end()) {
-					vars[TKN.val] = var {
-							tokens[i-1].type,
-							-1
-					};
+					var temp;
+					if(tokens[i-2].type == LTT::ConstVar) {
+						temp.isConst = true;
+						temp.val = tokens[i+2].val;
+					}
+					temp.type = tokens[i-1].type;
+					temp.arrayDimension = -1;
+					vars[TKN.val] = temp;
+					//	var {
+					//		tokens[i-1].type,
+					//		-1
+					//	};
 				}
 				if(vars.find(TKN.val) == vars.end()) {
-					printf("WARNING: Unknown identifier \"%s\"\n", TKN.val.c_str());
+					// already notified the user of the unknown identifier
+					// in getAllVars() so no need to remind them again
 				}
 				file << " " << TKN.val << " ";
 				continue;

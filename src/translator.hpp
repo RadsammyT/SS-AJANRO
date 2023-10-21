@@ -24,9 +24,12 @@ namespace translator {
 		LTT type;
 		int arrayDimension; // 0 if no array
 		std::vector<int> arraySizes;
+		bool isConst;
+		std::string val;
 	};
 
 	bool isType(LTT type);
+	bool isLiteral(LTT type);
 	std::string getTranslatedType(LTT type);
 	std::vector<std::string> getInputtedVars(std::vector<lexer::Token> tokens);
 	std::map<std::string, var> getAllVars(std::vector<lexer::Token> tokens);
