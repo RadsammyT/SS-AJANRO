@@ -118,6 +118,17 @@ int main(int argc, char** argv) {
 		if(flags.run && pclose_ret == 0) {
 			std::string cmd = "./";
 			cmd += out;
+#if defined(_WIN32)
+			// cuz running via system() in windows uses command prompt for execution
+			// meaning '\' instead of '/'.
+			while(true) {
+				if(cmd.find("/") != std::string::npos) {
+					cmd.replace(cmd.find("/"), 1, "\\");
+				} else {
+					break;
+				}
+			}
+#endif
 			printf("Running %s...\n", cmd.c_str());
 			system(cmd.c_str());
 		}
