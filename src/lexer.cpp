@@ -20,6 +20,7 @@ bool IsSymbol(char c, std::string in, int i) {
 		c == '<' ||
 		c == '>' ||
 		c == '_' ||
+		c == '|' ||
 		c == '!') {
 		return true;
 	}
