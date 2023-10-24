@@ -20,6 +20,16 @@ namespace CLI {
 				continue;
 			}
 
+			if(strcmp(argv[i], "-i") == 0) {
+				flags->constIgnore = true;
+				continue;
+			}
+
+			if(!strcmp(argv[i], "-ni")) {
+				flags->noConstIgnore = true;
+				continue;
+			}
+
 			if(strcmp(argv[i], "-c") == 0) {
 				flags->compile = true;
 				continue;

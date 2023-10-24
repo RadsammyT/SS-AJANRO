@@ -44,6 +44,8 @@ int main(int argc, char** argv) {
 				"     If compiling, this will instead declare the output \n"
 				"     of the executable.\n"
 				"     The argument after the flag will be the output file.\n"
+				"-i - Always ignore 'cin' to newline after each console input.\n"
+				"-ni - Never ignore 'cin' to newline after each console input.\n"
 				);
 		return 0;
 	}
@@ -69,7 +71,7 @@ int main(int argc, char** argv) {
 	std::string programName;
 	std::string out = "bin/";
 	std::string translation = translator::translate(tokens, flags.outFile,
-			programName);
+			programName, flags);
 	if(flags.translate) {
 
 		printf("Translation:\n%s\n", translation.c_str());

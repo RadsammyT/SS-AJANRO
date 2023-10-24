@@ -1,3 +1,4 @@
+#include "CLI.hpp"
 #define LTT lexer::TokenType // this define is not sponsored by lttstore.com
 #include <vector>
 #include <fstream>
@@ -197,12 +198,13 @@ namespace translator {
 	}
 
 	std::string  translate(std::vector<lexer::Token> tokens, std::string outputFile,
-			std::string& programName) {
+			std::string& programName, CLI::flags flags) {
 		std::map<std::string, var> vars = getAllVars(tokens);
 		std::vector<std::string> inputs = getInputtedVars(tokens);
 		file::InputtedFileVars fileInputs = file::getFileInputtedVars(tokens,  vars);
 		std::vector<Context> contextStack;
 		std::stringstream file;
+		bool wipeCin = false;
 		while(tokens.front().type != LTT::StartProgram) {
 			tokens.erase(tokens.begin());
 		}
@@ -395,7 +397,6 @@ namespace translator {
 				continue;
 			}
 			if(TKN.type == LTT::Input) {
-				bool wipeCin = false;
 				if(tokens[i+1].type == LTT::Identifier) {
 					if(!inputs.empty())
 						if(inputs.front() != tokens[i+1].val) {
@@ -453,6 +454,11 @@ namespace translator {
 								wipeCin = true;
 
 							}
+							if(vars[inputs.front()].type == LTT::TypeString &&
+									vars[inputs[1]].type != LTT::TypeString) {
+								wipeCin = true;
+
+							}
 						}
 						if(vars[tokens[i+1].val].type == LTT::TypeString) {
 							file << "std::getline(std::cin,"
@@ -461,9 +467,10 @@ namespace translator {
 							file << "std::cin >> " << 
 								tokens[i+1].val;
 						}
-						if(wipeCin) {
+						if((wipeCin || flags.constIgnore) && !flags.noConstIgnore) {
 							file << ";\n";
 							file << "std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\\n')";
+							wipeCin = false;
 						}
 					}
 				}

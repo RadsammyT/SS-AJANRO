@@ -1,4 +1,5 @@
 #pragma once
+#include "CLI.hpp"
 #define LTT lexer::TokenType // this define is not sponsored by lttstore.com
 #include <vector>
 #include <fstream>
@@ -35,5 +36,5 @@ namespace translator {
 	std::map<std::string, var> getAllVars(std::vector<lexer::Token> tokens);
 	void illegalTokenContext(lexer::TokenType type, std::vector<Context> c, int line);
 	std::string  translate(std::vector<lexer::Token> tokens, std::string outputFile,
-			std::string& programName);
+			std::string& programName, CLI::flags flags);
 }

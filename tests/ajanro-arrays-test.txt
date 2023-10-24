@@ -1,10 +1,14 @@
 startprogram ArraysTest
 	startmain
+		const integer SIZE_TEST = 69
 		integer test[100]
+		integer constTest[SIZE_TEST]
 		output "input two integers:"
 		input test[0]
 		input test[1]
 
+		output "constTest"
+		input constTest[50]
 		
 		output test[0] + " " + test[1]
 		integer multitesttwo[100][100][100]
