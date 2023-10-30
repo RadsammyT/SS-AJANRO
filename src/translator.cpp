@@ -1,5 +1,3 @@
-#include "CLI.hpp"
-#define LTT lexer::TokenType // this define is not sponsored by lttstore.com
 #include <vector>
 #include <fstream>
 #include <filesystem>
@@ -86,7 +84,7 @@ namespace translator {
 			}
 			if(tokens[i].type == LTT::Identifier) {
 				if(isType(tokens[i-1].type)) {
-					var temp = var {
+					var temp = {
 						.type = tokens[i-1].type,
 						.arrayDimension = 0,
 						.isConst = false,
@@ -117,8 +115,8 @@ namespace translator {
 									len = std::stoi(ident.val);
 								} else {
 									printf(
-										"getAllVars ERROR: invalid const for array size!"
-										"\noffending const: %s\n"
+										"getAllVars ERROR: invalid const for array size!\n"
+										"offending const: %s\n"
 										"used in identifier: %s\n"
 										"you might have used a const that is not an integer\n"
 										"or it is an integer but not a const\n",
@@ -176,7 +174,11 @@ namespace translator {
 			}
 		}
 		if(unknownIdentifiersFound) {
-			printf("NOTE: line numbers start at the 'startprogram' token\n");
+			// i used to have a note saying that
+			// line starts at startprogram token but 
+			// for some reason it works regardless of 
+			// whatever comments and lines are entered 
+			// regardless.
 		}
 		return vars;
 	}

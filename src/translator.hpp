@@ -1,11 +1,12 @@
 #pragma once
 #include "CLI.hpp"
-#define LTT lexer::TokenType // this define is not sponsored by lttstore.com
 #include <vector>
 #include <fstream>
 #include <filesystem>
 #include <map>
 #include "lexer.hpp"
+
+#define LTT lexer::TokenType // this define is not sponsored by lttstore.com
 
 namespace translator {
 	//this is more of a checker than something important for translation
