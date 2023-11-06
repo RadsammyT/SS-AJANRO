@@ -117,6 +117,8 @@ namespace translator { namespace file {
 						if(vars[lineTokens[j].val].type == LTT::TypeBool) {
 							ret.boolean = true;
 						}
+
+						if(vars[lineTokens[j].val].array.dimension) {}
 					}
 				}
 				// var1, var2

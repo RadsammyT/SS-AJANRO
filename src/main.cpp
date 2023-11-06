@@ -1,5 +1,6 @@
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -22,7 +23,6 @@ int main(int argc, char** argv) {
 		.compile = false,
 	};
 	CLI::processArguments(argc, argv, &flags);
-
 	if(flags.help || argc == 1) {
 		printf("SS-AJANRO - The AJANRO to C++ translator\n"
 				"Version: " GIT_VERSION "\n"

@@ -86,16 +86,27 @@ namespace translator {
 				if(isType(tokens[i-1].type)) {
 					var temp = {
 						.type = tokens[i-1].type,
-						.arrayDimension = 0,
 						.isConst = false,
-						.val = ""
+						.val = "",
+						.array {
+							.dimension = 0,
+							.allDimensionsConst = true,
+						}
 					};
 					if(tokens[i-2].type == LTT::ConstVar) {
 						temp.isConst = true;
 						// if i+2 is a literal?
 						if(isLiteral(tokens[i+2].type))
 							temp.val = tokens[i+2].val;
-						else {} // prolly do nothing
+						else {
+							printf(
+								"getAllVars WARNING:\n"
+								"const var declaration @ L%d either has brace initalization\n"
+								"or does not have a literal."
+								" Brace initalization isn't supported in actual AJANRO.",
+								line
+							);
+						} 		// prolly do nothing
 								// because it was likely an array 
 								// brace initalizer
 
@@ -114,16 +125,19 @@ namespace translator {
 								if(ident.isConst && ident.type == LTT::TypeInteger) {
 									len = std::stoi(ident.val);
 								} else {
-									printf(
-										"getAllVars ERROR: invalid const for array size!\n"
-										"offending const: %s\n"
-										"used in identifier: %s\n"
-										"you might have used a const that is not an integer\n"
-										"or it is an integer but not a const\n",
-										tokens[i+2].val.c_str(),
-										tokens[original].val.c_str()
-									);
-									exit(1);
+									if(ident.type != LTT::TypeInteger) {
+										printf(
+											"getAllVars ERROR: invalid const for array size!\n"
+											"offending const: %s\n"
+											"used in identifier: %s\n"
+											"you might have used a const that is not an integer\n",
+											tokens[i+2].val.c_str(),
+											tokens[original].val.c_str()
+										);
+										exit(1);
+									} else {
+										// fileIO check for later
+									}
 								}
 							} else {
 								printf(
@@ -135,27 +149,13 @@ namespace translator {
 									tokens[original].val.c_str()
 								);
 							}
-							vars[tokens[original].val].arraySizes.push_back(len);
+							vars[tokens[original].val].array.sizes.push_back(len);
 							i += 3;
-							vars[tokens[original].val].arrayDimension += 1;
+							vars[tokens[original].val].array.dimension += 1;
 							if(tokens[i].type != LTT::Identifier) {
 								continue;
 							}
 						} else {
-#if defined(DEBUG)
-							printf("var: %s\n"
-									"dimension: %d\n"
-									"isConst: %d\n"
-									"constVal: %s\n", tokens[original].val.c_str(),
-									vars[tokens[original].val].arrayDimension,
-									vars[tokens[original].val].isConst,
-									vars[tokens[original].val].val.c_str());
-							printf("sizes: ");
-							for(int i: vars[tokens[original].val].arraySizes) {
-								printf("%d ", i);
-							}
-							printf("\n");
-#endif
 							break;
 						}
 					}
@@ -180,7 +180,51 @@ namespace translator {
 			// whatever comments and lines are entered 
 			// regardless.
 		}
+		getArrayConstStatus(vars, tokens);
+		for(auto i: vars) {
+			
+#if defined(DEBUG)
+							printf("var: %s\n"
+									"dimension: %d\n"
+									"isConst: %d | arrayConst: %d\n"
+									"constVal: %s\n", i.first.c_str(),
+									i.second.array.dimension,
+									i.second.isConst,
+									i.second.array.allDimensionsConst,
+									i.second.val.c_str());
+							printf("sizes: ");
+							for(int i: i.second.array.sizes) {
+								printf("%d ", i);
+							}
+							printf("\n");
+#endif
+		}
 		return vars;
+	}
+
+	void getArrayConstStatus(std::map<std::string, var>& vars,
+			std::vector<lexer::Token> tokens) {
+		for(int i = 0; i < tokens.size(); i++) {
+			if(tokens[i].type == LTT::Identifier) {
+				if(isType(tokens[i-1].type) && tokens[i+1].type == LTT::OpenBracket) {
+					int original = i;
+					while(true) {
+						if(tokens[i+1].type == LTT::OpenBracket && !isLiteral(tokens[i+2].type)) {
+							if(!vars[tokens[i+2].val].isConst) {
+								vars[tokens[original].val].array.allDimensionsConst = false;
+							}
+							i += 3;
+						} else {
+							break;
+						}
+					}
+				} else {
+					if(isType(tokens[i-1].type)) {
+						vars[tokens[i].val].array.allDimensionsConst = false;
+					}
+				}
+			}
+		}
 	}
 
 	void illegalTokenContext(lexer::TokenType type, std::vector<Context> c, int line) {
@@ -332,7 +376,7 @@ namespace translator {
 						temp.val = tokens[i+2].val;
 					}
 					temp.type = tokens[i-1].type;
-					temp.arrayDimension = -1;
+					temp.array.dimension = -1;
 					vars[TKN.val] = temp;
 					//	var {
 					//		tokens[i-1].type,
@@ -420,11 +464,22 @@ namespace translator {
 							if(lineTokens[j].type != LTT::Identifier)
 								continue;
 							if(vars[lineTokens[j].val].type != LTT::TypeInputFile) {
-								if(vars[lineTokens[j].val].arrayDimension < 1)
+								if(vars[lineTokens[j].val].array.dimension < 1)
 									file << "fileInput(" << lineTokens[j].val <<
 										",\"" << lineTokens[j].val << "\","
 										<< stream << ");\n";
 								else {
+									if(!vars[lineTokens[j].val]
+											.array
+											.allDimensionsConst) {
+										printf(
+											"TRANSLATION ERROR: "
+											"array var '%s' does not have fully const"
+											" dimensions. FileIO is not supported for those "
+											" arrays.",
+											vars[lineTokens[j].val].val.c_str()
+										);
+									}
 									// TODO: do this if all brackets cover
 									// the amount of dimensions allocated to array
 									if(utils::fullDimensionCoverage(

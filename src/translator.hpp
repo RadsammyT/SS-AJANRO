@@ -20,14 +20,18 @@ namespace translator {
 		Output, // so + gets translated to << instead of +
 		Expression, // used in parenthesis `()` for output
 		ArrayDecl, // to put '= {}' after array initialization
+				   // as not doing so causes UB
 	};
 
 	struct var {
 		LTT type;
-		int arrayDimension; // 0 if no array
-		std::vector<int> arraySizes;
 		bool isConst;
 		std::string val;
+		struct {
+			int dimension; // 0 if no array
+			std::vector<int> sizes;
+			bool allDimensionsConst;
+		} array;
 	};
 
 	bool isType(LTT type);
@@ -35,6 +39,8 @@ namespace translator {
 	std::string getTranslatedType(LTT type);
 	std::vector<std::string> getInputtedVars(std::vector<lexer::Token> tokens);
 	std::map<std::string, var> getAllVars(std::vector<lexer::Token> tokens);
+	void getArrayConstStatus(std::map<std::string, var>& vars,
+			std::vector<lexer::Token> tokens);
 	void illegalTokenContext(lexer::TokenType type, std::vector<Context> c, int line);
 	std::string  translate(std::vector<lexer::Token> tokens, std::string outputFile,
 			std::string& programName, CLI::flags flags);

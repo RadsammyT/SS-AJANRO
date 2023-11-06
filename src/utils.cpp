@@ -67,7 +67,7 @@ namespace utils {
 				break;
 			}
 		}
-		if(vars[lineTokens[originalIndex].val].arrayDimension == accessedElements) {
+		if(vars[lineTokens[originalIndex].val].array.dimension == accessedElements) {
 			return true;
 		}
 		return false;
@@ -126,13 +126,13 @@ namespace utils {
 		// input array from handle
 		// note: int i(ndex) must point to identifier on lineTokens
 		int actualDimensions = 
-			vars[lineTokens[i].val].arrayDimension;
+			vars[lineTokens[i].val].array.dimension;
 		int coveredDimensions = 
 			utils::getDimensionCoverage(lineTokens, i, vars);
 		
 		if(actualDimensions - coveredDimensions == 1
 				&& actualDimensions == 1) {
-			for(int iter = 0; iter < *(vars[lineTokens[i].val].arraySizes.end() - 1); iter++) {
+			for(int iter = 0; iter < *(vars[lineTokens[i].val].array.sizes.end() - 1); iter++) {
 				file << "fileInput(";
 				file << lineTokens[i].val;
 				file << "[" << iter << "]";
@@ -140,7 +140,7 @@ namespace utils {
 				file << "[" << iter << "]";
 				file << "\"," << stream << ");\n";
 			}
-			return true;;
+			return true;
 		}
 		printf("recurseFileInputs ERROR: UNCOVERED CASE\n");
 		return false;
