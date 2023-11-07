@@ -15,6 +15,14 @@ startprogram FileIOTest
 		input arr from intest
 		close intest
 
+		integer size 
+		output "input size: "
+		input size 
+		integer error[size]
+		open intest "./AjanroTestInputs.txt"
+		input error from intest
+		close intest 
+
 		output charIn
 		output boolIn
 		output floatIn

@@ -1,7 +1,8 @@
 startprogram ArraysTest
 	startmain
 		const integer SIZE_TEST = 69
-		integer test[100]
+		integer sizeDyn
+		integer test[sizeDyn]
 		integer constTest[SIZE_TEST]
 		output "input two integers:"
 		input test[0]
