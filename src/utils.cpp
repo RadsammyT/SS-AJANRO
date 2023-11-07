@@ -34,20 +34,33 @@ namespace utils {
 		// array[(INT LIT OR IDENT)][(INDEX)][(INDEX)]
 		int originalIndex = i;
 		if(lineTokens[i].type != LTT::Identifier) {
+#if defined(DEBUG)
 			printf("fullDimensionCoverage ERROR: starting i index points to"
 					" token that is NOT an identifier!\n"
 					"Index is %d with type being %d.\n"
-					"Value of token is '%s'", i, lineTokens[i].type,
+					"Value of token is '%s'\n", i, lineTokens[i].type,
 					lineTokens[i].val.c_str());
+			for(auto i: lineTokens) {
+				printf("'%s' ", i.val.c_str());
+			}
+			printf("\n");
+#endif
 			return false;
 		}
 		if(lineTokens[i+1].type != LTT::OpenBracket) {
+#if defined(DEBUG)
 			printf("fullDimensionCoverage ERROR: i+1 index points to"
 					" token that is NOT open bracket!\n"
 					"Index is %d with type being %d.\n"
-					"Value of token is '%s'", i+1, lineTokens[i+1].type,
+					"Value of token is '%s'\n", i+1, lineTokens[i+1].type,
 					lineTokens[i+1].val.c_str());
+			for(auto i: lineTokens) {
+				printf("'%s' ", i.val.c_str());
+			}
+			printf("\n");
+#endif
 			return false;
+
 		}
 		bool openedBracket; 
 		int accessedElements = 0;
@@ -79,8 +92,12 @@ namespace utils {
 			printf("getDimensionCoverage ERROR: starting i index points to"
 					" token that is NOT an identifier!\n"
 					"Index is %d with type being %d.\n"
-					"Value of token is '%s'", i, lineTokens[i].type,
+					"Value of token is '%s'\n", i, lineTokens[i].type,
 					lineTokens[i].val.c_str());
+			for(auto i: lineTokens) {
+				printf("'%s' ", i.val.c_str());
+			}
+			printf("\n");
 #endif
 			return false;
 		}
@@ -89,8 +106,12 @@ namespace utils {
 			printf("getDimensionCoverage ERROR: i+1 index points to"
 					" token that is NOT open bracket!\n"
 					"Index is %d with type being %d.\n"
-					"Value of token is '%s'", i+1, lineTokens[i+1].type,
+					"Value of token is '%s'\n", i+1, lineTokens[i+1].type,
 					lineTokens[i+1].val.c_str());
+			for(auto i: lineTokens) {
+				printf("'%s' ", i.val.c_str());
+			}
+			printf("\n");
 #endif
 			return false;
 		}

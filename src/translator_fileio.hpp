@@ -1,7 +1,10 @@
 #pragma once
-#include "lexer.hpp"
+#include <string> 
+#include <vector>
+#include <map>
+
+#include "translator.hpp"
 #include "utils.hpp"
-#define LTT lexer::TokenType
 
 namespace translator { namespace file {
 
@@ -9,6 +12,10 @@ namespace translator { namespace file {
 	const std::string floatFileInput =
 		"void fileInput(float& var, std::string varName, std::string a) {"
 		"	std::ifstream stream(a);"
+		"	if(!stream.is_open()) {"
+		"		printf(\"FILEIO ERROR: file '%s' NOT FOUND\","
+		"				a.c_str());"
+		"	}"
 		"	std::string in;"
 		"	while(std::getline(stream, in)) {"
 		"	if(in == varName) {"
@@ -18,10 +25,15 @@ namespace translator { namespace file {
 		"		}"
 		"	}"
 		"printf(\"FILEIO ERROR: '%s' not found\\n\", varName.c_str());"
+			"return;"
 		"}";	
 	const std::string intFileInput =
 		"void fileInput(int& var, std::string varName, std::string a) {"
 			"std::ifstream stream(a);"
+		"	if(!stream.is_open()) {"
+		"		printf(\"FILEIO ERROR: file '%s' NOT FOUND\","
+		"				a.c_str());"
+		"	}"
 			"std::string in;"
 			"while(std::getline(stream, in)) {"
 			"if(in == varName) {"
@@ -31,10 +43,15 @@ namespace translator { namespace file {
 			"	}"
 			"}"
 			"printf(\"FILEIO ERROR: '%s' not found\\n\", varName.c_str());"
+			"return;"
 		"}";	
 	const std::string stringFileInput =
 		"void fileInput(std::string& var, std::string varName, std::string a) {"
 			"std::ifstream stream(a);"
+		"	if(!stream.is_open()) {"
+		"		printf(\"FILEIO ERROR: file '%s' NOT FOUND\","
+		"				a.c_str());"
+		"	}"
 			"std::string in;"
 			"while(std::getline(stream, in)) {"
 			"if(in == varName) {"
@@ -44,10 +61,15 @@ namespace translator { namespace file {
 			"	}"
 			"}"
 			"printf(\"FILEIO ERROR: '%s' not found\\n\", varName.c_str());"
+			"return;"
 		"}";	
 	const std::string charFileInput =
 		"void fileInput(char& var, std::string varName, std::string a) {"
 			"std::ifstream stream(a);"
+		"	if(!stream.is_open()) {"
+		"		printf(\"FILEIO ERROR: file '%s' NOT FOUND\","
+		"				a.c_str());"
+		"	}"
 			"std::string in;"
 			"while(std::getline(stream, in)) {"
 			"if(in == varName) {"
@@ -57,11 +79,16 @@ namespace translator { namespace file {
 			"	}"
 			"}"
 			"printf(\"FILEIO ERROR: '%s' not found\\n\", varName.c_str());"
+			"return;"
 		"}";	
 
 	const std::string boolFileInput =
 		"void fileInput(bool& var, std::string varName, std::string a) {"
 			"std::ifstream stream(a);"
+		"	if(!stream.is_open()) {"
+		"		printf(\"FILEIO ERROR: file '%s' NOT FOUND\","
+		"				a.c_str());"
+		"	}"
 			"std::string in;"
 			"while(std::getline(stream, in)) {"
 			"if(in == varName) {"
@@ -77,6 +104,7 @@ namespace translator { namespace file {
 			"	}"
 			"}"
 			"printf(\"FILEIO ERROR: '%s' not found\\n\", varName.c_str());"
+			"return;"
 		"}";	
 
 	struct InputtedFileVars {

@@ -1,11 +1,6 @@
 #pragma once
-#include <cctype>
-#include <cwctype>
 #include <fstream>
-#include <string>
-#include <variant>
 #include <vector>
-#include <regex>
 
 namespace lexer {
 

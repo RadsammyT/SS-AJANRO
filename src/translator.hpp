@@ -1,10 +1,10 @@
 #pragma once
-#include "CLI.hpp"
 #include <vector>
-#include <fstream>
-#include <filesystem>
 #include <map>
+
+#include "CLI.hpp"
 #include "lexer.hpp"
+
 
 #define LTT lexer::TokenType // this define is not sponsored by lttstore.com
 
@@ -30,7 +30,9 @@ namespace translator {
 		struct {
 			int dimension; // 0 if no array
 			std::vector<int> sizes;
-			bool allDimensionsConst;
+			bool allDimensionsConst; // true if all dimensions are const integers and 
+									 // literals
+									 // false if one dimension isnt a const or a literal
 		} array;
 	};
 

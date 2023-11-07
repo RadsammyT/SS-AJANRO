@@ -1,12 +1,6 @@
-#include <vector>
-#include <fstream>
-#include <filesystem>
-#include <map>
-
-#include "utils.hpp"
-#include "lexer.hpp"
-#include "translator_fileio.hpp"
 #include "translator.hpp"
+#include "utils.hpp"
+#include "translator_fileio.hpp"
 
 namespace translator {
 	//this is more of a checker than something important for translation
@@ -443,9 +437,14 @@ namespace translator {
 				continue;
 			}
 			if(TKN.type == LTT::Input) {
+				bool fileIO = false;
+					if(vars[(utils::peekAheadToEOL(tokens, i).end() - 1)->val].type 
+							// aka the last token of current line
+							== LTT::TypeInputFile) 
+						fileIO = true;
 				if(tokens[i+1].type == LTT::Identifier) {
 					if(!inputs.empty())
-						if(inputs.front() != tokens[i+1].val) {
+						if(inputs.front() != tokens[i+1].val && !fileIO) {
 							printf("ERROR: Inaccurate input vars vector at line %d.\n"
 									"Front of inputs is %s, the identifier here is %s\n",
 									line,
@@ -474,11 +473,13 @@ namespace translator {
 											.allDimensionsConst) {
 										printf(
 											"TRANSLATION ERROR: "
-											"array var '%s' does not have fully const"
+											"array var '%s'|'%s' does not have fully const"
 											" dimensions. FileIO is not supported for those "
-											" arrays.",
-											vars[lineTokens[j].val].val.c_str()
+											" arrays.\n",
+											vars[lineTokens[j].val].val.c_str(),
+											lineTokens[j].val.c_str()
 										);
+										continue;
 									}
 									// TODO: do this if all brackets cover
 									// the amount of dimensions allocated to array

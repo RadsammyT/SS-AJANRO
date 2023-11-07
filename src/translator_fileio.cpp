@@ -1,11 +1,3 @@
-#include <iostream>
-#include <fstream>
-#include <ostream>
-#include <sstream>
-#include <string>
-#include <vector>
-#include "lexer.hpp"
-#include "translator.hpp"
 #include "translator_fileio.hpp"
 #define LTT lexer::TokenType
 /*
