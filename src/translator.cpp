@@ -674,9 +674,23 @@ namespace translator {
 						isType(tokens[i-2].type))
 						|| (tokens[i-1].type == LTT::CloseBracket
 						&& contextStack.back() != Context::Output
-						&& contextStack.back() != Context::Expression))) {
+						&& contextStack.back() != Context::Expression
+						&& contextStack.back() != Context::FunctionDecl
+						&& contextStack.back() != Context::Flow))) {
 					file << "[";
 					contextStack.push_back(Context::ArrayDecl);
+					if(*(contextStack.end() - 2) == Context::FunctionDecl) {
+						contextStack.pop_back();
+						printf("OpenBracket triggered a ArrayDecl context in a FunctionDecl\n"
+								"Context. This should not happen and should be fixed.\n");
+					}
+					if(tokens[i-1].type != LTT::Identifier
+							&& !(isType(tokens[i-2].type))
+							&& contextStack.back() == Context::ArrayDecl) {
+						contextStack.pop_back();
+						printf("OpenBracket triggered a ArrayDecl context when the tokens\n"
+								"of previous do not indicate such. This should now be fixed.\n");
+					}
 					continue;
 				}
 				file << "[";
@@ -686,13 +700,9 @@ namespace translator {
 			if(TKN.type == LTT::CloseBracket) {
 				if(contextStack.back() == Context::ArrayDecl) {
 					if(tokens[i+1].type != LTT::OpenBracket &&
-							tokens[i+1].type != LTT::SetSymbol &&
-							contextStack.back() != Context::Output)
+							tokens[i+1].type != LTT::SetSymbol)
 						file << "] = {}";
 					contextStack.pop_back();
-					if(tokens[i+1].type != LTT::OpenBracket &&
-							tokens[i+1].type != LTT::SetSymbol &&
-							contextStack.back() != Context::Output)
 						continue;
 				} 
 				file << "]";
