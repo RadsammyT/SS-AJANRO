@@ -505,6 +505,7 @@ namespace translator {
 						continue;
 					}
 					// console input
+					int original = i;
 					if(vars.find(tokens[i+1].val) != vars.end()) {
 						if(inputs.size() > 1) {
 							if(vars[inputs.front()].type != LTT::TypeString &&
@@ -525,16 +526,30 @@ namespace translator {
 							file << "std::cin >> " << 
 								tokens[i+1].val;
 						}
+						if(vars[tokens[i+1].val].array.dimension != 0) {
+							i += 2;
+							while(true) {
+								file << tokens[i].val;
+								i++;
+								if(tokens[i].type == LTT::EOL) {
+									file << ";\n";
+									break;
+								}
+							}
+						}
 						if((wipeCin || flags.constIgnore) && !flags.noConstIgnore) {
 							file << ";\n";
 							file << "std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\\n')";
 							wipeCin = false;
 						}
+
+						if(vars[tokens[original+1].val].array.dimension == 0) {
+							i++;
+						}
 					}
 				}
 				if(!inputs.empty())
 					inputs.erase(inputs.begin());
-				i++;
 				continue;
 			}
 			if(TKN.type == LTT::OpenFile) {
@@ -700,10 +715,11 @@ namespace translator {
 			if(TKN.type == LTT::CloseBracket) {
 				if(contextStack.back() == Context::ArrayDecl) {
 					if(tokens[i+1].type != LTT::OpenBracket &&
-							tokens[i+1].type != LTT::SetSymbol)
+							tokens[i+1].type != LTT::SetSymbol) {
 						file << "] = {}";
 					contextStack.pop_back();
 						continue;
+					}
 				} 
 				file << "]";
 				continue;
