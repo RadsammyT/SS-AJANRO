@@ -1,7 +1,7 @@
 #pragma once
 #include <fstream>
 #include <vector>
-
+#include <regex>
 namespace lexer {
 
 enum class TokenType {

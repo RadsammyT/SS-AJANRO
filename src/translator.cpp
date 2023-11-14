@@ -1,5 +1,4 @@
 #include "translator.hpp"
-#include "utils.hpp"
 #include "translator_fileio.hpp"
 
 namespace translator {

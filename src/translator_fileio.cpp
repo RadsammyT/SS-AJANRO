@@ -1,4 +1,5 @@
 #include "translator_fileio.hpp"
+
 #define LTT lexer::TokenType
 /*
  *	AJANRO input file:

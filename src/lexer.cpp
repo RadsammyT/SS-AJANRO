@@ -1,7 +1,3 @@
-#include <string>
-#include <vector>
-#include <regex>
-
 #include "lexer.hpp"
 
 namespace lexer {

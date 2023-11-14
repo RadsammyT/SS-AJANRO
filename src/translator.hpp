@@ -5,7 +5,6 @@
 #include "CLI.hpp"
 #include "lexer.hpp"
 
-
 #define LTT lexer::TokenType // this define is not sponsored by lttstore.com
 
 namespace translator {

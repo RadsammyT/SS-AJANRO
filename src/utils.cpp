@@ -1,6 +1,4 @@
-#include "lexer.hpp"
-#include "translator.hpp"
-#include <sstream>
+#include "utils.hpp"
 
 namespace utils {
 	std::vector<lexer::Token> peekAheadToEOL(std::vector<lexer::Token> tokens, int i) {
