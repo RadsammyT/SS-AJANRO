@@ -12,9 +12,22 @@ startprogram ModuleTest
 		return i
 	endmodule
 
+	integer sumOfArray(integer array[], integer size)
+		integer iter = 0 
+		integer acc = 0
+		while iter < size
+			acc = acc + array[iter]
+			iter = iter + 1
+		endwhile
+		return acc
+	endmodule
+
 	startmain
 		integer test
+		integer arr[] = {3, 4, 5, 6, 7}
+		integer result = sumOfArray(arr, 5)
 		test = TestModule(13, "This is a test message")
+		output result
 		output test
 	endmain
 endprogram
