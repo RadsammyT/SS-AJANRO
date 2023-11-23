@@ -1,5 +1,8 @@
 #include "translator.hpp"
 #include "translator_fileio.hpp"
+#include "utils.hpp"
+#include <string>
+#include <variant>
 
 namespace translator {
 	//this is more of a checker than something important for translation
@@ -70,7 +73,6 @@ namespace translator {
 	std::map<std::string, var> getAllVars(std::vector<lexer::Token> tokens) {
 		std::map<std::string, var> vars;
 		int line = 1;
-		bool unknownIdentifiersFound = false;
 		for(int i = 0; i < tokens.size(); i++) {
 			if(tokens[i].type == LTT::EOL) {
 				line++;
@@ -161,17 +163,9 @@ namespace translator {
 						tokens[i].val.c_str(),
 						line
 					);
-					unknownIdentifiersFound = true;
 				}
 				continue;
 			}
-		}
-		if(unknownIdentifiersFound) {
-			// i used to have a note saying that
-			// line starts at startprogram token but 
-			// for some reason it works regardless of 
-			// whatever comments and lines are entered 
-			// regardless.
 		}
 		getArrayConstStatus(vars, tokens);
 		for(auto i: vars) {
@@ -661,6 +655,62 @@ namespace translator {
 						isType(tokens[i-2].type)) {
 					contextStack.push_back(Context::FunctionDecl);
 					file << "(";
+					// maybe iterate over the params here?
+					while(true) {
+						if(TKN.type == LTT::CloseParenthesis) {
+							file << ") {";
+							contextStack.pop_back();
+							contextStack.push_back(Context::Function);
+							break;
+						}
+						if(TKN.type == LTT::OpenBracket ||
+								TKN.type == LTT::CloseBracket) {
+							i++;
+							continue;
+						}
+						if(TKN.type == LTT::Comma) {
+							file << ", ";
+						}
+						if(isType(TKN.type)) {
+							file << getTranslatedType(TKN.type) << " ";
+						}
+						if(TKN.type == LTT::Identifier
+								&& tokens[i-1].type != LTT::OpenBracket) {
+							if(vars.find(TKN.val) != vars.end()) {
+								int dimensions = 0;
+								int j = i;
+								while(true) {
+									if(tokens[j].type == LTT::Comma ||
+											tokens[j].type == LTT::CloseParenthesis) {
+										vars[TKN.val].array.dimension = dimensions;
+										break;
+									}
+									if(tokens[j+1].type == LTT::OpenBracket &&
+											tokens[j+2].type == LTT::CloseBracket) {
+										dimensions++;
+										j += 2;
+									}
+									if(tokens[j+1].type == LTT::OpenBracket &&
+											tokens[j+2].type == LTT::Identifier &&
+											tokens[j+3].type == LTT::CloseBracket) {
+										dimensions++;
+										j += 3;
+									}
+									j++;
+								}
+								if(vars[TKN.val].array.dimension != 0) {
+									auto var = vars[TKN.val];
+									for(int iter = 0; 
+											iter < var.array.dimension;
+											iter++ ) {
+										file << "*"; // spooky pointers
+									}
+								}
+								file << TKN.val;
+							}
+						}
+						i++;
+					}
 					continue;
 				} else {
 					contextStack.push_back(Context::Expression);
@@ -725,6 +775,8 @@ namespace translator {
 			}
 
 			if(TKN.type == LTT::OpenBrace) {
+				if(contextStack.back() == Context::ArrayDecl)
+					contextStack.pop_back();
 				file << "{";
 				continue;
 			}

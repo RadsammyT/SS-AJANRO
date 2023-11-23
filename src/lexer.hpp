@@ -61,6 +61,7 @@ enum class TokenType {
 	Return,
 	EOL, // serves as a semicolon (as in the end of a command)
 	_EOF,
+	_CUSTOM, // to assign custom values to
 };
 
 struct Token {
