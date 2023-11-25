@@ -60,6 +60,7 @@ int main(int argc, char** argv) {
 	
 	std::vector<lexer::Token> tokens = lexer::tokenize(stream.str());
 #ifdef DEBUG
+	DEBUGMARK;
 	printf("Tokens of file:\n");
 	for(auto i: tokens) {
 		printf("%d: %s\n", i.type, i.val.c_str());

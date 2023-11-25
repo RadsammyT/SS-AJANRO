@@ -1,6 +1,7 @@
 #include "translator.hpp"
 #include "translator_fileio.hpp"
 #include "utils.hpp"
+#include <algorithm>
 #include <string>
 #include <variant>
 
@@ -91,14 +92,13 @@ namespace translator {
 					if(tokens[i-2].type == LTT::ConstVar) {
 						temp.isConst = true;
 						// if i+2 is a literal?
-						if(isLiteral(tokens[i+2].type))
+						if(isLiteral(tokens[i+2].type) &&
+								tokens[i+2].type != LTT::OpenBrace)
 							temp.val = tokens[i+2].val;
 						else {
 							printf(
-								"getAllVars WARNING:\n"
-								"const var declaration @ L%d either has brace initalization\n"
-								"or does not have a literal."
-								" Brace initalization isn't supported in actual AJANRO.",
+								"getAllVars WARNING: "
+								"const var declaration @ L%d does not have a literal.",
 								line
 							);
 						} 		// prolly do nothing
@@ -168,22 +168,33 @@ namespace translator {
 			}
 		}
 		getArrayConstStatus(vars, tokens);
+#if defined (DEBUG)
+		DEBUGMARK;
+#endif
+		std::vector<std::string> illegals;
+		for(auto i: vars) 
+			if(i.second.type == (LTT) 0) 
+				illegals.push_back(i.first);
+
+		for(auto i: illegals)
+			vars.erase(i);
+
 		for(auto i: vars) {
-			
 #if defined(DEBUG)
-							printf("var: %s\n"
-									"dimension: %d\n"
-									"isConst: %d | arrayConst: %d\n"
-									"constVal: %s\n", i.first.c_str(),
-									i.second.array.dimension,
-									i.second.isConst,
-									i.second.array.allDimensionsConst,
-									i.second.val.c_str());
-							printf("sizes: ");
-							for(int i: i.second.array.sizes) {
-								printf("%d ", i);
-							}
-							printf("\n");
+			printf("var: %s | type: %d\n"
+					"dimension: %d\n"
+					"isConst: %d | arrayConst: %d\n"
+					"constVal: %s\n", i.first.c_str(),
+					i.second.type,
+					i.second.array.dimension,
+					i.second.isConst,
+					i.second.array.allDimensionsConst,
+					i.second.val.c_str());
+			printf("sizes: ");
+			for(int i: i.second.array.sizes) {
+				printf("%d ", i);
+			}
+			printf("\n_______________\n");
 #endif
 		}
 		return vars;

@@ -21,8 +21,8 @@ enum class TokenType {
 	FlowDo,
 	FlowEndif,
 	FlowEndWhile,
-	TypeString, // Types that are usually in variable declarations.
-	TypeInteger,
+	TypeString, // Types that are usually in variable declarations, may also be used to
+	TypeInteger, // refer to the type of a variable
 	TypeFloating,
 	TypeBool,
 	TypeChar,
